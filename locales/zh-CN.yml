@@ -75,3 +75,12 @@ about:
 index:
   label: "按字母跳转"
   jump: "以 %{letter} 开头的软件包"
+quick_menu:
+  update: "更新"
+  search: "搜索"
+  about: "关于"
+  website: "官网"
+  github: "GitHub"
+  feedback: "反馈"
+  sponsor: "赞助"
+  quit: "退出"

@@ -17,17 +17,17 @@ export interface MenuActions {
 /** The title bar Menu's rows: what the app does, about it, and quitting, at hand without the menu bar. */
 export function toolbarMenuItems(a: MenuActions): MenuEntry[] {
   return [
-    {label: t("toolbar.update_homebrew"), icon: "refresh", shortcut: keymap.label("mod+r"), disabled: a.busy(), select: a.updateHomebrew},
-    {label: t("app_menu.find"), icon: "search", shortcut: keymap.label("mod+f"), select: a.find},
+    {label: t("quick_menu.update"), icon: "refresh", shortcut: keymap.label("mod+r"), disabled: a.busy(), select: a.updateHomebrew},
+    {label: t("quick_menu.search"), icon: "search", shortcut: keymap.label("mod+f"), select: a.find},
     "separator",
-    {label: t("app_menu.about"), icon: "eyes", select: a.about},
-    {label: t("app_menu.website"), select: () => openExternal(links.website)},
-    {label: t("app_menu.github"), select: () => openExternal(links.repo)},
-    {label: t("app_menu.issue"), select: () => openExternal(links.issues)},
+    {label: t("quick_menu.about"), icon: "info", select: a.about},
+    {label: t("quick_menu.website"), icon: "globe", select: () => openExternal(links.website)},
+    {label: t("quick_menu.github"), icon: "branch", select: () => openExternal(links.repo)},
+    {label: t("quick_menu.feedback"), icon: "message", select: () => openExternal(links.issues)},
     "separator",
-    {label: t("app_menu.sponsor"), select: () => openExternal(links.sponsor)},
+    {label: t("quick_menu.sponsor"), icon: "heart", select: () => openExternal(links.sponsor)},
     "separator",
-    {label: t("app_menu.quit"), shortcut: keymap.label("mod+q"), select: () => Application.quit()},
+    {label: t("quick_menu.quit"), icon: "power", shortcut: keymap.label("mod+q"), select: () => Application.quit()},
   ];
 }
 

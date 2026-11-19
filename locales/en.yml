@@ -75,3 +75,12 @@ about:
 index:
   label: "Jump to letter"
   jump: "Packages starting with %{letter}"
+quick_menu:
+  update: "Update"
+  search: "Search"
+  about: "About"
+  website: "Website"
+  github: "GitHub"
+  feedback: "Feedback"
+  sponsor: "Sponsor"
+  quit: "Quit"
