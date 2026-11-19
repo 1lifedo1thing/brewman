@@ -106,15 +106,15 @@ fn poly32(p: vec2f, pts: array<vec2f, 32>, n: i32) -> f32 {
 }
 
 // The watcher, Brewman's own: a broad, armored figure standing on the roof, facing out of the frame as if walking
-// toward it through the rain; a hood with one soft peak, the logo's lens eyes, a cape blown out to the left by the
+// toward it through the rain; a hood with two pointed ears, the logo's lens eyes, a cape blown out to the left by the
 // wind that slants the rain. Drawn in frame units around its feet (FEET, y up is negative, 392 tall).
 const FEET: vec2f = vec2f(965.0, 598.0);
 const FIG_SCALE: f32 = 0.8;   // drawn at 0.8 of its own units, feet fixed
 
 fn hood(q: vec2f) -> f32 {
   let head = length((q - vec2f(0.0, -356.0)) / vec2f(1.0, 1.2)) - 27.5;
-  // One tall, sharp peak, leaning slightly back.
-  return smin(head, tri(q, vec2f(-16.0, -374.0), vec2f(14.0, -378.0), vec2f(-6.0, -446.0)), 4.0);
+  let ears = tri(vec2f(abs(q.x), q.y), vec2f(7.0, -380.0), vec2f(24.0, -371.0), vec2f(27.0, -416.0));
+  return smin(head, ears, 4.0);
 }
 
 // A high collar: a stiff panel rising from each shoulder beside the jaw to a point below the eyes, flaring out.
