@@ -45,7 +45,7 @@ write colours or radii.
 
 | Change | Motion | Reduced motion |
 |---|---|---|
-| Backdrop | A rainy night: rain in three depth layers slants from the upper right to the lower left; a few bats cross on random paths, speeds and sizes, their number drifting from none to a small flock; distant lightning flickers in some 11s spans; the backlight breathes, the cape billows; the figure stands in profile, turned left to look out past the roof's edge, its lens-shaped eye glowing and blinking every ~5s; all in the shader | Shader paused (a still night) |
+| Backdrop | A rainy night: rain in three depth layers slants from the upper right to the lower left; a few bats cross on random paths, speeds and sizes, their number drifting from none to a small flock; distant lightning flickers in some 11s spans; the backlight breathes, the cape billows; the watcher, an ink-style profile bust looking left, its lens-shaped eye glowing and blinking every ~5s, its cape stirring; all in the shader | Shader paused (a still night) |
 | Letter index pressed | The list scrolls to the first package under that letter (animated scroll) and selects it; the letter at the top of the list is lit gold as it scrolls | Jumps without animation |
 | About opens / closes | Native dialog fade, focus on Close | No animation |
 | Window loses / regains focus | Title bar contents fade to 50–55% opacity and back, 150ms ease-out | Instant |
