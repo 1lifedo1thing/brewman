@@ -1,0 +1,33 @@
+{
+  "name": "Brewman",
+  "id": "app.brewman.desktop",
+  "version": "0.1.0",
+  "build": 1,
+  "theme": "theme.json",
+  "capabilities": {
+    "process": {
+      "execute": [
+        "brew",
+        "/opt/homebrew/bin/brew",
+        "/usr/local/bin/brew"
+      ]
+    }
+  },
+  "window": {
+    "title": "Brewman",
+    "defaultSize": {
+      "width": 1120,
+      "height": 720
+    },
+    "minSize": {
+      "width": 800,
+      "height": 520
+    },
+    "titleBar": {
+      "style": "hidden",
+      "height": 42
+    }
+  },
+  "appearance": "dark",
+  "icon": "assets/icon.png"
+}

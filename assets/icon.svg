@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b2335"/><stop offset=".6" stop-color="#0b0f18"/><stop offset="1" stop-color="#030406"/></linearGradient>
+    <radialGradient id="gl" cx=".62" cy=".3" r=".55"><stop offset="0" stop-color="#e3eaff" stop-opacity=".55"/><stop offset=".4" stop-color="#8fa3d8" stop-opacity=".14"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="au" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#f5c542"/><stop offset="1" stop-color="#b8860b"/></linearGradient>
+  </defs>
+  <path d="M100 100 H924 V924 H100 Z" fill="url(#bg)"/>
+  <path d="M100 100 H924 V924 H100 Z" fill="url(#gl)"/>
+  <path d="M100 760 L180 700 L220 730 L280 640 L330 690 L380 610 L420 650 L470 600 L520 660 L580 620 L640 680 L700 600 L760 660 L820 630 L924 700 V924 H100 Z" fill="#05070c"/>
+  <path d="M300 440 H660 L630 812 L594 846 H366 L330 812 Z" fill="#06080d" stroke="url(#au)" stroke-width="30" stroke-linejoin="miter"/>
+  <path d="M660 520 H736 L714 712 H646" fill="none" stroke="url(#au)" stroke-width="28" stroke-linejoin="miter"/>
+  <path d="M352 560 H612 L604 640 H360 Z" fill="url(#au)"/>
+  <path d="M300 440 L344 400 L398 432 L452 394 L506 432 L560 394 L614 432 L660 400 L660 440" fill="url(#au)" stroke="url(#au)" stroke-width="10" stroke-linejoin="miter"/>
+  <g transform="translate(520 196) rotate(-16) scale(4.2)"><path d="M32 12 L30.6 8.6 L30 13 C27 9 22 3.5 13 1 C15.5 5 15.5 8 14.5 11 C17.5 10 20 11.5 21 14 C23 12 26 13 27 16 L30 18 L32 22 L34 18 L37 16 C38 13 41 12 43 14 C44 11.5 46.5 10 49.5 11 C48.5 8 48.5 5 51 1 C42 3.5 37 9 34 13 L33.4 8.6 Z" fill="#020306" stroke="#c9d4ff" stroke-opacity=".55" stroke-width=".7"/></g>
+  <g transform="translate(470 300) rotate(10) scale(2.2)"><path d="M32 12 L30.6 8.6 L30 13 C27 9 22 3.5 13 1 C15.5 5 15.5 8 14.5 11 C17.5 10 20 11.5 21 14 C23 12 26 13 27 16 L30 18 L32 22 L34 18 L37 16 C38 13 41 12 43 14 C44 11.5 46.5 10 49.5 11 C48.5 8 48.5 5 51 1 C42 3.5 37 9 34 13 L33.4 8.6 Z" fill="#020306" stroke="#c9d4ff" stroke-opacity=".4" stroke-width="1"/></g>
+  <path d="M100 100 H924 V924 H100 Z" fill="none" stroke="#2a2e37" stroke-width="6"/>
+</svg>
