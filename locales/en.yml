@@ -1,0 +1,51 @@
+nav:
+  library: "Library"
+  all: "All Packages"
+  formula: "Formula"
+  cask: "Cask"
+  updates: "Updates"
+  homebrew: "Local Homebrew"
+toolbar:
+  check_updates: "Check for Updates"
+  search: "Search packages"
+table:
+  package: "Package"
+  installed: "Installed"
+  latest: "Latest"
+  up_to_date: "Up to date"
+empty:
+  all_current: "All packages are up to date"
+  category: "No packages in this category"
+  no_match: "No results for “%{query}”"
+  no_match_hint: "Try another name, or clear the search to see every package."
+  clear_search: "Clear Search"
+status:
+  totals: "%{total} packages · %{updates} updates"
+  loading: "Reading packages…"
+  checking: "Checking for updates…"
+  updates_found: "%{count} packages can be updated"
+  upgrading: "Upgrading %{name}…"
+  upgraded: "Upgraded %{name} to %{version}"
+  uninstalling: "Uninstalling %{name}…"
+  uninstalled: "Uninstalled %{name}"
+inspector:
+  current: "Up to date"
+  new_version: "New version"
+  upgrade_to: "Upgrade to %{version}"
+  kind: "Type"
+  installed: "Installed"
+  latest: "Latest"
+  tap: "Tap"
+  dependencies: "Dependencies · %{count}"
+  uninstall: "Uninstall Package…"
+menu:
+  upgrade: "Upgrade Package"
+  uninstall: "Uninstall Package…"
+dialog:
+  title: "Uninstall %{name}?"
+  body: "Homebrew will remove %{name} %{version} from this Mac. Packages that depend on it may stop working."
+  cancel: "Cancel"
+  confirm: "Uninstall"
+errors:
+  no_brew: "Homebrew was not found. Check where brew is installed."
+  brew_failed: "The Homebrew command failed"

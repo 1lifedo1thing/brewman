@@ -1,3 +1,4 @@
+import { t } from "nsh/i18n";
 import { run } from "process";
 
 export interface Package {
@@ -18,10 +19,10 @@ export async function brew(args: string[]) {
         if ((await run(path, ["--version"])).code === 0) { executable = path; break; }
       } catch { continue; }
     }
-    if (!executable) throw new Error("未找到 Homebrew，请检查 brew 安装路径。");
+    if (!executable) throw new Error(t("errors.no_brew"));
   }
   const result = await run(executable, args, {timeoutMs: 1800000});
-  if (result.code !== 0) throw new Error((result.stderr || result.stdout || "Homebrew 命令失败").trim().slice(-1200));
+  if (result.code !== 0) throw new Error((result.stderr || result.stdout || t("errors.brew_failed")).trim().slice(-1200));
   return result.stdout;
 }
 export async function inventory(): Promise<Package[]> {

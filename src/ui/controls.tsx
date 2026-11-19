@@ -1,3 +1,4 @@
+import { t } from "nsh/i18n";
 import { Text, View } from "nsh";
 import { Button as BaseButton, Input } from "nsh/base";
 import { Icon, type IconName, type IconTone } from "./Icon";
@@ -43,7 +44,7 @@ export function NavItem(p: {label: string; icon: IconName; count: string; alert?
 /** The package search, with its ⌘F hint. */
 export function SearchField(p: {value: string; change: (s: string) => void; shortcut: string; inputRef?: (node: {focus(): void}) => void; class?: string}) {
   return <View class={`h-7 justify-center ${p.class || ""}`}>
-    <Input ref={p.inputRef} testID="search" accessibilityLabel="搜索软件包" placeholder="搜索软件包" value={p.value} onChange={e => p.change(e.value)}
+    <Input ref={p.inputRef} testID="search" accessibilityLabel={t("toolbar.search")} placeholder={t("toolbar.search")} value={p.value} onChange={e => p.change(e.value)}
       class={`${motionTokens.wash} h-7 rounded-(--radius) border border-foreground/10 bg-background/40 ps-7 pe-9 text-xs text-foreground placeholder:text-subtle focus:border-primary`}/>
     <View class="absolute start-2"><Icon name="search" size="sm"/></View>
     <View class="absolute end-1.5 rounded-(--radius-sm) border border-border-strong px-1"><Text class="font-mono text-xs text-subtle">{p.shortcut}</Text></View>

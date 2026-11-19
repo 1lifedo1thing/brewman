@@ -1,0 +1,51 @@
+nav:
+  library: "软件库"
+  all: "全部软件"
+  formula: "Formula"
+  cask: "Cask"
+  updates: "可更新"
+  homebrew: "本机 Homebrew"
+toolbar:
+  check_updates: "检查更新"
+  search: "搜索软件包"
+table:
+  package: "软件包"
+  installed: "当前版本"
+  latest: "最新版本"
+  up_to_date: "最新"
+empty:
+  all_current: "所有软件包都是最新版本"
+  category: "此分类没有软件包"
+  no_match: "没有找到“%{query}”"
+  no_match_hint: "换个关键词，或清除搜索查看全部软件包。"
+  clear_search: "清除搜索"
+status:
+  totals: "共 %{total} 项 · %{updates} 项可更新"
+  loading: "正在读取软件包…"
+  checking: "正在检查更新…"
+  updates_found: "%{count} 个软件包可更新"
+  upgrading: "正在升级 %{name}…"
+  upgraded: "已将 %{name} 升级到 %{version}"
+  uninstalling: "正在卸载 %{name}…"
+  uninstalled: "已卸载 %{name}"
+inspector:
+  current: "已是最新版本"
+  new_version: "有新版本"
+  upgrade_to: "升级到 %{version}"
+  kind: "类型"
+  installed: "当前版本"
+  latest: "最新版本"
+  tap: "来源"
+  dependencies: "依赖项 · %{count}"
+  uninstall: "卸载软件包…"
+menu:
+  upgrade: "升级软件包"
+  uninstall: "卸载软件包…"
+dialog:
+  title: "卸载 %{name}？"
+  body: "Homebrew 会从本机移除 %{name} %{version}。依赖它的软件包可能无法运行。"
+  cancel: "取消"
+  confirm: "卸载"
+errors:
+  no_brew: "未找到 Homebrew，请检查 brew 安装路径。"
+  brew_failed: "Homebrew 命令失败"

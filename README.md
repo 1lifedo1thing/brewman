@@ -12,6 +12,7 @@ shader night sky with bats behind translucent panels, sharp corners and a single
 - Inspector with description, tap, versions and dependencies.
 - Upgrades a package, checks for updates (`brew update` and `brew outdated`), and uninstalls after a confirmation.
 - Right-click a row for Upgrade and Uninstall.
+- English and Simplified Chinese, following the system language (English by default).
 - Native AppKit views; the backdrop is a GPU shader that holds still when Reduce Motion is on.
 
 ## Install
@@ -47,6 +48,7 @@ nsh test       # headless UI tests
 - `App.tsx`: the window: title bar, sidebar, package table, inspector, uninstall dialog.
 - `src/brew.ts`: runs `brew` and parses its JSON.
 - `src/ui/`: the app's styled controls, icons, motion tokens, the title bar and the `NightScene` shader.
+- `locales/`: UI text, `en.yml` and `zh-CN.yml` (read with `t()` from `nsh/i18n`).
 - `theme.json`: color tokens. `DESIGN.md`: design rules and the motion inventory.
 - `website/`: the [project website](https://huacnlee.github.io/brewman/), which also serves `install.sh`.
 
