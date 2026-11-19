@@ -27,6 +27,11 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.0'
+      # The app's root tsconfig.json extends .nsh/tsconfig.json, which nsh generates and git ignores.
+      # Vite finds that root config, so give it a stub when nsh has not run.
+      - name: Stub the nsh tsconfig
+        working-directory: .
+        run: test -f .nsh/tsconfig.json || { mkdir -p .nsh && echo '{}' > .nsh/tsconfig.json; }
       - run: bun install --frozen-lockfile
       - run: bun run build
         env:
