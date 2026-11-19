@@ -177,8 +177,8 @@ fn bareFace(q: vec2f) -> f32 {
 fn eyeLens(q: vec2f, side: f32) -> f32 {
   let open = 1.0 - step(0.965, fract(nsh.time / 5.3));
   let e = vec2f((q.x - side * 9.8) * side, q.y + 363.0);
-  let lid = (-1.8 - 0.36 * e.x) - e.y;
-  let lower = length((e - vec2f(0.0, -1.5)) / vec2f(1.0, mix(0.08, 0.72, open))) - 7.2;
+  let lid = (-0.6 - 0.30 * e.x) - e.y;
+  let lower = length((e - vec2f(0.0, -1.5)) / vec2f(1.0, mix(0.08, 0.54, open))) - 7.2;
   return max(lid, lower);
 }
 
@@ -408,8 +408,7 @@ fn shade(uv: vec2f) -> vec4f {
   let inside = 1.0 - smoothstep(-0.8 / k, 0.8 / k, fd);
   col = mix(col, uniforms.base.rgb * 0.3, inside);
   col = col + uniforms.glow.rgb * exp(-abs(fd) / 2.2) * lit * 0.6 * step(fd, 4.0);
-  // The watcher: armor seams catching the light, the pale lower face with its mouth line, the gold raindrop clasp at
-  // the throat, the two glowing lens eyes; the legs fade into the rain's haze toward the roof.
+  // The armor seams catch the light. Two narrow lenses glow above the pale lower face.
   if (inside > 0.001) {
     let q = (fp - FEET) / FIG_SCALE;
     let px = 1.0 / (k * FIG_SCALE);
@@ -419,13 +418,11 @@ fn shade(uv: vec2f) -> vec4f {
     let seam = 1.0 - smoothstep(0.3 * px, 1.4 * px, seams(q));
     col = col + ink * seam * mix(0.1, 0.2, body) * inside;
     let bare = (1.0 - smoothstep(-px, px, bareFace(q))) * inside;
-    let mouth = exp(-segment(q, vec2f(-6.5, -333.0), vec2f(6.5, -333.0)) / (1.2 * px));
+    let mouth = exp(-segment(vec2f(abs(q.x), q.y), vec2f(0.0, -334.0), vec2f(7.2, -332.8)) / (1.2 * px));
     col = mix(col, ink * 0.3 * (1.0 - mouth * 0.85), bare);
-    let clasp = smin(length(q - vec2f(0.0, -322.0)) - 3.6, tri(q, vec2f(-2.6, -323.0), vec2f(2.6, -323.0), vec2f(0.0, -331.0)), 1.0);
-    col = mix(col, uniforms.gold.rgb * 0.8, (1.0 - smoothstep(-px, px, clasp)) * inside);
     let el = min(eyeLens(q, -1.0), eyeLens(q, 1.0));
     let eye = 1.0 - smoothstep(-px, px, el);
-    col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.2 + uniforms.gold.rgb * exp(-max(el, 0.0) / 2.6) * 0.35 * inside;
+    col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.2 + uniforms.gold.rgb * exp(-max(el, 0.0) / 1.6) * 0.22 * inside;
     let haze = smoothstep(-190.0, 0.0, q.y) * 0.35 * inside;
     col = mix(col, uniforms.sky.rgb * 1.3 + uniforms.glow.rgb * 0.12, haze);
   }
