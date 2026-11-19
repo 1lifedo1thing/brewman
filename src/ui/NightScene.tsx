@@ -113,14 +113,16 @@ fn toWatcher(p: vec2f) -> vec2f { return (p - vec2f(965.0, 614.0)) / W_SCALE + v
 
 fn bust(q: vec2f) -> f32 {
   let w = sin(nsh.time * 0.8) * 4.0;   // the cape stirs
+  // Powerful, not heavy: a thick neck, the trapezius sloping hard into a rounded deltoid, the chest pushed forward
+  // over a narrow waist; the cape hangs from the far shoulder.
   return poly32(q, array<vec2f, 32>(
     vec2f(318.0, 34.0), vec2f(352.0, 88.0), vec2f(372.0, 158.0), vec2f(384.0, 236.0), vec2f(394.0, 298.0),
-    vec2f(440.0 + w * 0.3, 330.0), vec2f(482.0 + w * 0.6, 382.0), vec2f(502.0 + w, 452.0), vec2f(510.0 + w, 600.0),
-    vec2f(56.0, 600.0), vec2f(66.0, 524.0), vec2f(88.0, 472.0), vec2f(128.0, 432.0), vec2f(172.0, 406.0),
-    vec2f(196.0, 362.0), vec2f(154.0, 352.0), vec2f(134.0, 334.0), vec2f(127.0, 320.0), vec2f(121.0, 304.0),
-    vec2f(108.0, 290.0), vec2f(95.0, 266.0), vec2f(118.0, 240.0), vec2f(125.0, 208.0), vec2f(148.0, 152.0),
-    vec2f(198.0, 88.0), vec2f(262.0, 50.0), vec2f(0.0), vec2f(0.0), vec2f(0.0), vec2f(0.0), vec2f(0.0),
-    vec2f(0.0)), 26);
+    vec2f(432.0 + w * 0.2, 312.0), vec2f(474.0 + w * 0.3, 338.0), vec2f(500.0 + w * 0.5, 378.0),
+    vec2f(512.0 + w * 0.8, 452.0), vec2f(520.0 + w, 600.0), vec2f(156.0, 600.0), vec2f(146.0, 532.0),
+    vec2f(130.0, 506.0), vec2f(114.0, 484.0), vec2f(118.0, 452.0), vec2f(140.0, 424.0), vec2f(176.0, 404.0),
+    vec2f(204.0, 384.0), vec2f(196.0, 362.0), vec2f(154.0, 352.0), vec2f(134.0, 334.0), vec2f(127.0, 320.0),
+    vec2f(121.0, 304.0), vec2f(108.0, 290.0), vec2f(95.0, 266.0), vec2f(118.0, 240.0), vec2f(125.0, 208.0),
+    vec2f(148.0, 152.0), vec2f(198.0, 88.0), vec2f(262.0, 50.0), vec2f(0.0), vec2f(0.0)), 30);
 }
 
 // The bare lower face: below the mask's edge, which runs from under the nose back toward the jaw.
@@ -151,11 +153,14 @@ fn inkStrokes(q: vec2f) -> f32 {
   d = min(d, segment(q, vec2f(236.0, 118.0), vec2f(256.0, 214.0)));
   d = min(d, segment(q, vec2f(256.0, 214.0), vec2f(238.0, 318.0)));
   d = min(d, segment(q, vec2f(118.0, 266.0), vec2f(206.0, 306.0)));
-  d = min(d, segment(q, vec2f(176.0, 400.0), vec2f(262.0, 362.0)));
-  d = min(d, segment(q, vec2f(262.0, 362.0), vec2f(336.0, 334.0)));
-  d = min(d, segment(q, vec2f(300.0, 344.0), vec2f(474.0, 424.0)));
-  d = min(d, segment(q, vec2f(250.0, 396.0), vec2f(486.0, 488.0)));
-  d = min(d, segment(q, vec2f(196.0, 444.0), vec2f(430.0, 566.0)));
+  d = min(d, segment(q, vec2f(184.0, 402.0), vec2f(262.0, 364.0)));
+  d = min(d, segment(q, vec2f(262.0, 364.0), vec2f(336.0, 334.0)));
+  d = min(d, segment(q, vec2f(128.0, 456.0), vec2f(196.0, 476.0)));    // the chest's lower edge
+  d = min(d, segment(q, vec2f(144.0, 514.0), vec2f(188.0, 522.0)));    // a line across the waist
+  d = min(d, segment(q, vec2f(404.0, 318.0), vec2f(458.0, 352.0)));    // the deltoid's curve
+  d = min(d, segment(q, vec2f(458.0, 352.0), vec2f(474.0, 404.0)));
+  d = min(d, segment(q, vec2f(330.0, 366.0), vec2f(500.0, 474.0)));    // cape folds
+  d = min(d, segment(q, vec2f(300.0, 426.0), vec2f(510.0, 566.0)));
   return d;
 }
 
