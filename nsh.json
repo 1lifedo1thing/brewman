@@ -13,7 +13,12 @@
       ]
     },
     "application": true,
-    "statusBar": true
+    "statusBar": true,
+    "openUrl": {
+      "schemes": [
+        "https"
+      ]
+    }
   },
   "window": {
     "title": "Brewman",

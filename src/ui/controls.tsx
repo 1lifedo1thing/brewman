@@ -1,5 +1,6 @@
 import { t } from "nsh/i18n";
-import { Text, View } from "nsh";
+import { createMotion, effect, Image, reduceMotion, Text, token, View } from "nsh";
+import eyesGlyph from "./icons/eyes.svg";
 import { Button as BaseButton, Input } from "nsh/base";
 import { Icon, type IconName, type IconTone } from "./Icon";
 import { motionTokens } from "./motion";
@@ -82,8 +83,24 @@ export function KindTile(p: {cask: boolean; size?: "sm" | "lg"}) {
 }
 
 /** The busy mark of the status bar: a turning arc that rests with reduced motion. */
+/** Busy: a pair of eyes that glow up and down and blink now and then, instead of a spinning ring. Still (lit) under
+ * reduced motion. */
 export function Spinner() {
-  return <View accessibilityElementsHidden class="w-2.5 h-2.5 border border-border-strong border-t-primary animate-spin motion-reduce:animate-none"/>;
+  const motion = createMotion();
+  effect(() => {
+    if (reduceMotion()) { motion.reset(); return; }
+    void motion.play({duration: motionTokens.watchMs, iterations: "infinite", easing: "easeInOut", keyframes: [
+      {opacity: 0.4, scaleY: 1, offset: 0},
+      {opacity: 1, scaleY: 1, offset: 0.45},
+      {opacity: 1, scaleY: 1, offset: 0.8},
+      {opacity: 1, scaleY: 0.1, offset: 0.84},
+      {opacity: 1, scaleY: 1, offset: 0.88},
+      {opacity: 0.4, scaleY: 1, offset: 1},
+    ]});
+  });
+  return <View accessibilityElementsHidden style={motion.style}>
+    <Image src={eyesGlyph} class="w-5 h-2.5" style={{tintColor: token("primary")}}/>
+  </View>;
 }
 
 /** The display face: a condensed, widely tracked uppercase for the wordmark and section labels. */
@@ -102,4 +119,22 @@ export function PackageRow(p: {name: string; desc: string; installed: string; st
     <If when={!p.compact}><Text style={{numberOfLines: 1, fontVariant: "tabular-nums"}} class="w-24 font-mono text-xs text-soft">{p.installed}</Text></If>
     <View class="w-26"><StatusMark label={p.status} attention={p.outdated}/></View>
   </BaseButton>;
+}
+
+/** The letter a package name files under: A–Z, or # for anything else. */
+export const letterOf = (name: string) => { const c = name.charAt(0).toUpperCase(); return c >= "A" && c <= "Z" ? c : "#"; };
+export const LETTERS = ["#", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
+
+/** An A–Z rail beside a list: each letter jumps to the first row filed under it; letters with no rows are dimmed and
+ * disabled. The letters share the rail's height, so it fits short windows. */
+export function LetterIndex(p: {present: (letter: string) => boolean; current: string; press: (letter: string) => void}) {
+  return <View role="navigation" accessibilityLabel={t("index.label")} class="w-6 items-center py-1.5">
+    <Each of={LETTERS}>{letter =>
+      <BaseButton disabled={!p.present(letter())} onPress={() => p.press(letter())}
+        accessibilityLabel={t("index.jump", {letter: letter()})}
+        class={`${motionTokens.wash} flex-1 w-5 max-h-5 items-center justify-center hover:bg-foreground/10 focus-visible:ring-1 focus-visible:ring-ring`}>
+        <Text style={{fontFamily: "Avenir Next Condensed", fontWeight: "700", fontSize: 10}}
+          class={p.current === letter() ? "text-primary" : p.present(letter()) ? "text-soft" : "text-foreground/20"}>{letter()}</Text>
+      </BaseButton>}</Each>
+  </View>;
 }

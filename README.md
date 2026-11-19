@@ -10,7 +10,7 @@ shader night sky with bats behind translucent panels, sharp corners and a single
 - Lists every installed formula and cask, with the installed and latest versions side by side.
 - Filters by All / Formula / Cask / Updates, and searches by name (⌘F).
 - Inspector with description, tap, versions and dependencies.
-- Upgrades a package, checks for updates (`brew update` and `brew outdated`), and uninstalls after a confirmation.
+- Upgrades a package, updates Homebrew (`brew update`, then refreshes the outdated list), and uninstalls after a confirmation.
 - Right-click a row for Upgrade and Uninstall.
 - English and Simplified Chinese, following the system language (English by default).
 - Native AppKit views; the backdrop is a GPU shader that holds still when Reduce Motion is on.

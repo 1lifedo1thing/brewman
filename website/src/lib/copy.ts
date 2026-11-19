@@ -1,6 +1,6 @@
 export const copy = {
   en: {
-    description: 'Brewman is a native macOS app for Homebrew. See every installed formula and cask, check for updates, and upgrade or uninstall packages without leaving the window.',
+    description: 'Brewman is a native macOS app for Homebrew. See every installed formula and cask, update Homebrew to find outdated packages, and upgrade or uninstall packages without leaving the window.',
     skip: 'Skip to content', sponsor: 'Sponsor me', sponsorText: 'If this helps you, please sponsor me.', sponsorButton: 'Sponsor on GitHub', source: 'Source', language: 'Language', nav: 'Main navigation',
     eyebrow: 'A native Homebrew app for macOS', title: 'Keep watch over Homebrew.',
     intro: 'Brewman lists every formula and cask Homebrew has installed, shows which ones are out of date, and upgrades or uninstalls them from one window. No terminal session to keep open.',
@@ -14,7 +14,7 @@ export const copy = {
     workflow: 'Check. Upgrade. Clean up.', workflowIntro: 'From “what did I install?” to an up-to-date machine, in one window.',
     steps: [
       ['Open it.', 'Brewman reads what Homebrew has installed and lists every formula and cask. Filter by All, Formula, Cask or Updates.'],
-      ['Check for updates.', 'One button runs brew update and then asks Homebrew what is outdated. Packages with a newer version show up under Updates.'],
+      ['Update Homebrew.', 'One button runs brew update and then asks Homebrew what is outdated. Packages with a newer version show up under Updates.'],
       ['Upgrade or remove.', 'Select a package to see its installed and latest versions, then upgrade it. Uninstalling always asks you to confirm first.'],
     ],
     details: 'Everything Homebrew knows, in plain sight.',
@@ -39,7 +39,7 @@ export const copy = {
     license: 'MIT License', built: 'Built with',
   },
   'zh-CN': {
-    description: 'Brewman 是 macOS 上的原生 Homebrew 管理应用。查看已安装的所有 formula 和 cask，检查更新，在同一个窗口里升级或卸载软件包。',
+    description: 'Brewman 是 macOS 上的原生 Homebrew 管理应用。查看已安装的所有 formula 和 cask，更新 Homebrew 找出可升级的软件包，在同一个窗口里升级或卸载软件包。',
     skip: '跳转到内容', sponsor: '赞助作者', sponsorText: '如果这个项目帮到了你，请赞助我。', sponsorButton: '在 GitHub 上赞助', source: '源码', language: '语言', nav: '主导航',
     eyebrow: 'macOS 原生 Homebrew 应用', title: '替你看好 Homebrew',
     intro: 'Brewman 列出 Homebrew 安装的每一个 formula 和 cask，标出哪些已经过时，并在同一个窗口里完成升级或卸载。不用再开着终端反复敲命令。',
@@ -53,7 +53,7 @@ export const copy = {
     workflow: '检查、升级、清理', workflowIntro: '从“我到底装了些什么”到全部更新完毕，只需一个窗口。',
     steps: [
       ['打开即可', 'Brewman 读取 Homebrew 已安装的内容，列出所有 formula 和 cask。可按全部、Formula、Cask 或可更新筛选。'],
-      ['检查更新', '点一下按钮，先执行 brew update，再向 Homebrew 查询哪些软件包已过时。有新版本的软件包会出现在“可更新”中。'],
+      ['更新 Homebrew', '点一下按钮，先执行 brew update，再向 Homebrew 查询哪些软件包已过时。有新版本的软件包会出现在“可更新”中。'],
       ['升级或卸载', '选中软件包即可看到已安装版本和最新版本，随后一键升级。卸载前一定会先请你确认。'],
     ],
     details: 'Homebrew 知道的，一目了然',

@@ -6,7 +6,7 @@ nav:
   updates: "可更新"
   homebrew: "本机 Homebrew"
 toolbar:
-  check_updates: "检查更新"
+  update_homebrew: "更新 Homebrew"
   search: "搜索软件包"
 table:
   package: "软件包"
@@ -22,7 +22,7 @@ empty:
 status:
   totals: "共 %{total} 项 · %{updates} 项可更新"
   loading: "正在读取软件包…"
-  checking: "正在检查更新…"
+  updating: "正在更新 Homebrew…"
   updates_found: "%{count} 个软件包可更新"
   upgrading: "正在升级 %{name}…"
   upgraded: "已将 %{name} 升级到 %{version}"
@@ -49,3 +49,27 @@ dialog:
 errors:
   no_brew: "未找到 Homebrew，请检查 brew 安装路径。"
   brew_failed: "Homebrew 命令失败"
+app_menu:
+  about: "关于 Brewman"
+  sponsor: "赞助 Brewman…"
+  file: "文件"
+  find: "查找"
+  edit: "编辑"
+  view: "显示"
+  window: "窗口"
+  help: "帮助"
+  website: "Brewman 网站"
+  github: "GitHub 源代码"
+  issue: "反馈问题"
+about:
+  tagline: "macOS 原生 Homebrew 管理工具"
+  version: "版本 %{version}"
+  body: "Brewman 列出 Homebrew 安装的 formula 和 cask，并可升级或卸载它们。它只在本机运行 brew 命令，不会上传任何数据。"
+  website: "网站"
+  github: "GitHub"
+  sponsor: "赞助"
+  built_with: "使用 NSH 构建"
+  close: "关闭"
+index:
+  label: "按字母跳转"
+  jump: "以 %{letter} 开头的软件包"

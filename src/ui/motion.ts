@@ -3,6 +3,8 @@ import { createMotion, effect, reduceMotion } from "nsh";
 /** Motion tokens: every duration, distance and spring in the app comes from here. */
 export const motionTokens = {
   revealMs: 160,
+  /** One glow-and-blink cycle of the busy eyes. */
+  watchMs: 2400,
   rise: 4,
   selectionSpring: { stiffness: 420, damping: 40 },
   navHeight: 30,

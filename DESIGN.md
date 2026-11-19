@@ -29,7 +29,7 @@ Brewman is a macOS desktop utility for the packages Homebrew installed. Design s
 ## Layout
 
 A custom title bar spans the window (the system bar is hidden): the window controls and the BREWMAN brand over the
-sidebar column, then the section title and count, search with ⌘F and 检查更新 at the right; its empty space moves the
+sidebar column, then the section title and count, search with ⌘F and Update Homebrew (更新 Homebrew: `brew update`, then the outdated list) at the right; its empty space moves the
 window. Below it: sidebar (软件库 navigation with counts, Homebrew footer) | the package table (header, virtualized
 rows, status bar) and the inspector (identity, description, upgrade block or “已是最新版本”, fields, dependency chips,
 卸载软件包… pinned at the bottom).
@@ -45,7 +45,9 @@ write colours or radii.
 
 | Change | Motion | Reduced motion |
 |---|---|---|
-| Backdrop | Bats fly their streams and beat their wings, the backlight breathes, the cape stirs, all in the shader | Shader paused (a still night) |
+| Backdrop | Bats fly their streams and beat their wings, the backlight breathes, the cape billows, the figure's eyes blink every ~5s, all in the shader | Shader paused (a still night) |
+| Letter index pressed | The list scrolls to the first package under that letter (animated scroll) and selects it; the letter at the top of the list is lit gold as it scrolls | Jumps without animation |
+| About opens / closes | Native dialog fade, focus on Close | No animation |
 | Window loses / regains focus | Title bar contents fade to 50–55% opacity and back, 150ms ease-out | Instant |
 | Hover on buttons, nav items, rows | Background wash in, `instant` (120ms) ease-out | Instant |
 | Press on buttons | Scale 0.97 plus deeper fill, `fast` (180ms) soft settle | Fill only |
@@ -54,7 +56,7 @@ write colours or radii.
 | Selected package changes | Inspector content rises 4pt and fades in, 160ms ease-out | Instant |
 | Status bar message changes | Message rises 4pt and fades in once per change | Instant |
 | Search field focus | Border turns amber, `instant` | Instant |
-| Busy (refresh, upgrade, uninstall) | Status bar shows a spinner glyph and label; buttons dim to disabled | Spinner rests |
+| Busy (refresh, upgrade, uninstall) | Status bar shows the watching eyes beside the label: they glow up and down and blink once per 2.4s cycle (`watchMs`); buttons dim to disabled | Eyes lit and still |
 | Uninstall confirmation opens / closes | Native dialog fade, focus on 取消 | No animation |
 | Counts, versions, recycled rows | No motion: they update in place to keep scan position | — |
 | Context menu | Native system motion | Native |

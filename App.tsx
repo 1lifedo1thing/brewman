@@ -1,9 +1,14 @@
-import { createAnimatedValue, effect, keymap, reduceMotion, computed, Scroll, List, mount, signal, Text, View } from "nsh";
+import { createAnimatedValue, effect, Image, token, keymap, reduceMotion, computed, Scroll, List, mount, signal, Text, View } from "nsh";
+import appIcon from "./assets/icon.png";
+import eyesGlyph from "./src/ui/icons/eyes.svg";
 import { Menu } from "nsh/desktop";
 import { t } from "nsh/i18n";
 import { Dialog } from "nsh/base";
 import { brew, inventory, modify, type Package } from "./src/brew";
-import { Button, Chip, Field, KindTile, NavItem, PackageRow, SearchField, Spinner, display } from "./src/ui/controls";
+import { Button, Chip, Field, KindTile, LetterIndex, NavItem, PackageRow, SearchField, Spinner, display, letterOf } from "./src/ui/controls";
+import { appInfo, type ListRef } from "nsh";
+import { installAppMenu } from "./src/menu";
+import { links, openExternal } from "./src/links";
 import { Icon, type IconName } from "./src/ui/Icon";
 import { motionTokens, revealOn } from "./src/ui/motion";
 import { NightScene } from "./src/ui/NightScene";
@@ -17,6 +22,8 @@ const sections: Section[] = [
   {id: "updates", label: "nav.updates", icon: "update"},
 ];
 const key = (p: Package) => p.kind + "/" + p.id;
+/** The status bar shows a message's last non-empty line: brew puts its summary there. */
+const lastLine = (text: string) => text.split("\n").map(l => l.trim()).filter(Boolean).pop() || "";
 const reason = (error: unknown) => error instanceof Error ? error.message : String(error);
 
 function App() {
@@ -31,6 +38,9 @@ function App() {
   const removing = signal<Package | null>(null);
   let cancelButton: {focus(): void} | undefined;
   let searchInput: {focus(): void} | undefined;
+  let packageList: ListRef | undefined;
+  let aboutClose: {focus(): void} | undefined;
+  const aboutOpen = signal(false);
 
   const matches = (p: Package, id: Section["id"]) => id === "all" || id === p.kind || (id === "updates" && p.outdated);
   const visible = computed(() => packages().filter(p =>
@@ -71,8 +81,8 @@ function App() {
       return t("status.upgraded", {name: target.name, version: version || target.latest});
     });
   }
-  function checkUpdates() {
-    void refresh(t("status.checking"), () => brew(["update"]), () =>
+  function updateHomebrew() {
+    void refresh(t("status.updating"), () => brew(["update"]), () =>
       count("updates") ? t("status.updates_found", {count: count("updates")}) : t("empty.all_current"));
   }
   function openRowMenu(target: Package, at: {x: number; y: number}) {
@@ -83,6 +93,31 @@ function App() {
     ], at);
   }
 
+  /** The letter of the row at the top of the list, lit in the letter index. */
+  const topLetter = signal("");
+  const lettersPresent = computed(() => new Set(visible().map(p => letterOf(p.name))));
+  function jumpTo(letter: string) {
+    const index = visible().findIndex(p => letterOf(p.name) === letter);
+    if (index < 0) return;
+    selected.set(key(visible()[index]));
+    topLetter.set(letter);
+    packageList?.scrollToIndex({index, animated: !reduceMotion()});
+  }
+  function trackTop() {
+    void packageList?.measureScrollPosition().then(position => {
+      const row = position && visible()[position.index];
+      if (row) topLetter.set(letterOf(row.name));
+    });
+  }
+
+  installAppMenu({
+    about: () => aboutOpen.set(true),
+    updateHomebrew,
+    find: () => searchInput?.focus(),
+    busy: () => !!busy(),
+    sections: () => sections.map(s => ({label: t(s.label), selected: section() === s, select: () => section.set(s)})),
+  });
+
   void refresh(t("status.loading"));
 
   const sidebarWidth = () => compact() ? 184 : 208;
@@ -92,7 +127,7 @@ function App() {
 
     <TitleBar brandWidth={sidebarWidth()}
       brand={<>
-        <Icon name="bat" tone="primary" size="md"/>
+        <Image src={eyesGlyph} accessibilityElementsHidden class="w-6 h-3" style={{tintColor: token("primary")}}/>
         <Text style={{...display, fontSize: 14, letterSpacing: 3.2}} class="text-foreground">Brewman</Text>
       </>}
       title={<>
@@ -102,7 +137,7 @@ function App() {
       actions={<View class="flex-row items-center gap-2.5">
         <SearchField class={compact() ? "w-44" : "w-56"} value={query()} change={q => query.set(q)}
           shortcut={keymap.label("mod+f")} inputRef={node => { searchInput = node; }}/>
-        <Button label={t("toolbar.check_updates")} icon="refresh" disabled={!!busy()} press={checkUpdates}/>
+        <Button label={t("toolbar.update_homebrew")} icon="refresh" disabled={!!busy()} press={updateHomebrew}/>
       </View>}/>
 
     <View class="flex-1 flex-row">
@@ -134,12 +169,15 @@ function App() {
               <If when={!compact()}><Text class="w-24 text-xs text-subtle">{t("table.installed")}</Text></If>
               <Text class="w-26 text-xs text-subtle">{t("table.latest")}</Text>
             </View>
-            <List each={visible()} keyExtractor={key} estimatedItemSize={44} class="flex-1 px-2 py-1">
+            <View class="flex-1 flex-row">
+            <List ref={node => { packageList = node; }} onScroll={trackTop} each={visible()} keyExtractor={key} estimatedItemSize={44} class="flex-1 px-2 py-1">
               {row => <PackageRow testID={key(row())} name={row().name} desc={row().desc || row().kind}
                 installed={row().installed} outdated={row().outdated} status={row().outdated ? row().latest : t("table.up_to_date")}
                 cask={row().kind === "Cask"} compact={compact()} selected={!!item() && key(item()!) === key(row())}
                 press={() => selected.set(key(row()))} menu={at => openRowMenu(row(), at)}/>}
             </List>
+            <LetterIndex present={letter => lettersPresent().has(letter)} current={topLetter()} press={jumpTo}/>
+            </View>
           </If>
           <If when={loaded() && !visible().length}>
             <View class="flex-1 items-start gap-2 px-5 py-6">
@@ -155,13 +193,13 @@ function App() {
           <If when={!loaded()}><View class="flex-1"/></If>
 
           <View class="h-7 flex-row items-center justify-between gap-3 border-t border-foreground/10 px-5">
-            <Text class="text-xs text-subtle">
+            <Text class="shrink-0 text-xs text-subtle">
               {loaded() ? t("status.totals", {total: packages().length, updates: count("updates")}) : ""}</Text>
-            <View style={feedbackMotion} class="flex-row items-center gap-1.5">
+            <View style={feedbackMotion} class="min-w-0 flex-1 flex-row items-center justify-end gap-1.5">
               <If when={!!busy()}><Spinner/><Text class="text-xs text-foreground">{busy()}</Text></If>
               <If when={!busy() && !!message()}>
                 <Icon name={message()?.tone === "error" ? "alert" : "check"} tone={message()?.tone === "error" ? "danger" : "success"} size="xs"/>
-                <Text style={{numberOfLines: 1}} class={`text-xs ${message()?.tone === "error" ? "text-danger" : "text-soft"}`}>{message()?.text}</Text>
+                <Text style={{numberOfLines: 1}} class={`shrink text-xs ${message()?.tone === "error" ? "text-danger" : "text-soft"}`}>{lastLine(message()?.text || "")}</Text>
               </If>
             </View>
           </View>
@@ -232,6 +270,31 @@ function App() {
             const target = removing(); removing.set(null);
             if (target) void refresh(t("status.uninstalling", {name: target.name}), () => modify("uninstall", target), () => t("status.uninstalled", {name: target.name}));
           }}/>
+        </View>
+      </View>
+    </Dialog>
+
+    <Dialog open={aboutOpen()} animation={reduceMotion() ? "none" : "fade"} accessibilityLabel={t("app_menu.about")}
+      onOpen={() => aboutClose?.focus()} onOpenChange={e => { if (!e.open) aboutOpen.set(false); }}
+      class="flex-1 items-center justify-center" backdropClass="bg-background/70">
+      <View class="w-96 gap-5 border border-border-strong bg-card p-6">
+        <View class="flex-row items-center gap-4">
+          <Image src={appIcon} accessibilityElementsHidden class="w-16 h-16"/>
+          <View class="flex-1 gap-1">
+            <Text style={{...display, fontSize: 20, letterSpacing: 4}} class="text-foreground">Brewman</Text>
+            <Text class="text-xs text-soft">{t("about.tagline")}</Text>
+            <Text class="font-mono text-xs text-subtle">{t("about.version", {version: appInfo().version || "dev"})}</Text>
+          </View>
+        </View>
+        <Text class="text-xs text-soft">{t("about.body")}</Text>
+        <View class="flex-row flex-wrap gap-2">
+          <Button label={t("about.website")} press={() => openExternal(links.website)}/>
+          <Button label={t("about.github")} press={() => openExternal(links.repo)}/>
+          <Button variant="primary" label={t("about.sponsor")} press={() => openExternal(links.sponsor)}/>
+        </View>
+        <View class="flex-row items-center justify-between border-t border-foreground/10 pt-4">
+          <Button variant="ghost" label={t("about.built_with")} press={() => openExternal(links.nsh)}/>
+          <Button buttonRef={node => { aboutClose = node; }} label={t("about.close")} press={() => aboutOpen.set(false)}/>
         </View>
       </View>
     </Dialog>

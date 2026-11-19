@@ -6,7 +6,7 @@ nav:
   updates: "Updates"
   homebrew: "Local Homebrew"
 toolbar:
-  check_updates: "Check for Updates"
+  update_homebrew: "Update Homebrew"
   search: "Search packages"
 table:
   package: "Package"
@@ -22,7 +22,7 @@ empty:
 status:
   totals: "%{total} packages · %{updates} updates"
   loading: "Reading packages…"
-  checking: "Checking for updates…"
+  updating: "Updating Homebrew…"
   updates_found: "%{count} packages can be updated"
   upgrading: "Upgrading %{name}…"
   upgraded: "Upgraded %{name} to %{version}"
@@ -49,3 +49,27 @@ dialog:
 errors:
   no_brew: "Homebrew was not found. Check where brew is installed."
   brew_failed: "The Homebrew command failed"
+app_menu:
+  about: "About Brewman"
+  sponsor: "Sponsor Brewman…"
+  file: "File"
+  find: "Find"
+  edit: "Edit"
+  view: "View"
+  window: "Window"
+  help: "Help"
+  website: "Brewman Website"
+  github: "Source on GitHub"
+  issue: "Report an Issue"
+about:
+  tagline: "A native Homebrew manager for macOS"
+  version: "Version %{version}"
+  body: "Brewman lists the formulae and casks Homebrew has installed, and upgrades or uninstalls them. It runs the brew command on this Mac; nothing leaves it."
+  website: "Website"
+  github: "GitHub"
+  sponsor: "Sponsor"
+  built_with: "Built with NSH"
+  close: "Close"
+index:
+  label: "Jump to letter"
+  jump: "Packages starting with %{letter}"
