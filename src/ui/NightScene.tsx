@@ -105,82 +105,99 @@ fn poly32(p: vec2f, pts: array<vec2f, 32>, n: i32) -> f32 {
   return s * sqrt(d);
 }
 
-// The watcher, Brewman's own, drawn as an ink bust: seen in profile looking left, a hood swept back to a single
-// peak, the lower face bare below the mask, a high collar and a cape draped over the far shoulder. It is drawn in
-// its own units (a 520 × 600 box, y down), placed large behind the roof's lip.
-const W_SCALE: f32 = 0.36;
-// The boots (y 1020 in watcher units) rest on the roof's top, behind its lip.
-fn toWatcher(p: vec2f) -> vec2f { return (p - vec2f(965.0, 598.0)) / W_SCALE + vec2f(300.0, 1020.0); }
+// The watcher, Brewman's own: a broad, armored figure standing on the roof, facing out of the frame as if walking
+// toward it through the rain; a hood with one soft peak, the logo's lens eyes, a cape blown out to the left by the
+// wind that slants the rain. Drawn in frame units around its feet (FEET, y up is negative, 392 tall).
+const FEET: vec2f = vec2f(965.0, 598.0);
+const FIG_SCALE: f32 = 0.8;   // drawn at 0.8 of its own units, feet fixed
 
-fn bust(q: vec2f) -> f32 {
-  let w = sin(nsh.time * 0.8) * 4.0;   // the cape stirs
-  // Powerful, not heavy: a thick neck, the trapezius sloping hard into a rounded deltoid, the chest pushed forward
-  // over a narrow waist; the cape hangs from the far shoulder.
+fn hood(q: vec2f) -> f32 {
+  let head = length((q - vec2f(0.0, -356.0)) / vec2f(1.0, 1.2)) - 27.5;
+  return smin(head, tri(q, vec2f(-18.0, -372.0), vec2f(15.0, -376.0), vec2f(-2.0, -410.0)), 8.0);
+}
+
+// Neck, the trapezius sloping into armored shoulders, a deep chest over a narrow waist.
+fn torso(q: vec2f) -> f32 {
   return poly32(q, array<vec2f, 32>(
-    vec2f(318.0, 34.0), vec2f(352.0, 88.0), vec2f(372.0, 158.0), vec2f(384.0, 236.0), vec2f(394.0, 298.0),
-    vec2f(432.0 + w * 0.2, 312.0), vec2f(474.0 + w * 0.3, 338.0), vec2f(500.0 + w * 0.5, 378.0),
-    vec2f(512.0 + w * 0.8, 452.0), vec2f(556.0 + w * 1.4, 1000.0), vec2f(520.0 + w, 1016.0), vec2f(338.0, 1004.0),
-    vec2f(170.0, 620.0), vec2f(146.0, 532.0),
-    vec2f(130.0, 506.0), vec2f(114.0, 484.0), vec2f(118.0, 452.0), vec2f(140.0, 424.0), vec2f(176.0, 404.0),
-    vec2f(204.0, 384.0), vec2f(196.0, 362.0), vec2f(154.0, 352.0), vec2f(134.0, 334.0), vec2f(127.0, 320.0),
-    vec2f(121.0, 304.0), vec2f(108.0, 290.0), vec2f(95.0, 266.0), vec2f(118.0, 240.0), vec2f(125.0, 208.0),
-    vec2f(148.0, 152.0), vec2f(198.0, 88.0), vec2f(262.0, 50.0)), 32);
+    vec2f(-20.0, -340.0), vec2f(20.0, -340.0), vec2f(26.0, -327.0), vec2f(60.0, -319.0), vec2f(76.0, -306.0),
+    vec2f(80.0, -290.0), vec2f(70.0, -262.0), vec2f(52.0, -240.0), vec2f(42.0, -206.0), vec2f(46.0, -176.0),
+    vec2f(-46.0, -176.0), vec2f(-42.0, -206.0), vec2f(-52.0, -240.0), vec2f(-70.0, -262.0), vec2f(-80.0, -290.0),
+    vec2f(-76.0, -306.0), vec2f(-60.0, -319.0), vec2f(-26.0, -327.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0),
+    vec2f(0.0, 0.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0),
+    vec2f(0.0, 0.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0), vec2f(0.0, 0.0),
+    vec2f(0.0, 0.0), vec2f(0.0, 0.0)), 18);
 }
 
-// Standing: two legs planted apart under the narrow waist, thick thighs tapering to the boots, both feet toward
-// the city on the left.
-fn legs(q: vec2f) -> f32 {
-  let near = smin(segment(q, vec2f(196.0, 610.0), vec2f(184.0, 818.0)) - 40.0,
-                  segment(q, vec2f(184.0, 818.0), vec2f(198.0, 992.0)) - 28.0, 10.0);
-  let far = smin(segment(q, vec2f(270.0, 610.0), vec2f(284.0, 818.0)) - 38.0,
-                 segment(q, vec2f(284.0, 818.0), vec2f(298.0, 992.0)) - 27.0, 10.0);
-  let boots = min(segment(q, vec2f(156.0, 1006.0), vec2f(222.0, 1006.0)) - 14.0,
-                  segment(q, vec2f(252.0, 1006.0), vec2f(318.0, 1006.0)) - 14.0);
-  return min(min(near, far), boots);
+// Arms hang at the sides, the fists closed.
+fn arms(q: vec2f) -> f32 {
+  let r = smin(smin(segment(q, vec2f(70.0, -296.0), vec2f(84.0, -236.0)) - 15.0,
+                    segment(q, vec2f(84.0, -236.0), vec2f(90.0, -176.0)) - 13.0, 5.0), length(q - vec2f(91.0, -165.0)) - 13.5, 4.0);
+  let l = smin(smin(segment(q, vec2f(-70.0, -296.0), vec2f(-82.0, -238.0)) - 15.0,
+                    segment(q, vec2f(-82.0, -238.0), vec2f(-86.0, -178.0)) - 13.0, 5.0), length(q - vec2f(-87.0, -167.0)) - 13.0, 4.0);
+  return min(r, l);
 }
 
-fn body(q: vec2f) -> f32 { return smin(bust(q), legs(q), 6.0); }
+// The cape, a long coat-like drape from shoulder to roof, its left side thrown out by the wind in slow waves.
+fn cape(q: vec2f) -> f32 {
+  let t = nsh.time;
+  let wa = sin(t * 1.2) * 5.0;
+  let wb = sin(t * 1.2 - 0.8) * 8.0;
+  let wc = sin(t * 1.2 - 1.6) * 11.0;
+  // It wraps the figure from the shoulders to the roof, hiding the legs; the wind throws the left side out.
+  return poly32(q, array<vec2f, 32>(
+    vec2f(-60.0, -322.0), vec2f(-84.0, -306.0), vec2f(-106.0, -268.0), vec2f(-130.0, -214.0), vec2f(-158.0 + wa, -156.0),
+    vec2f(-190.0 + wb, -98.0), vec2f(-220.0 + wc, -40.0), vec2f(-238.0 + wc, -8.0), vec2f(-200.0, -2.0), vec2f(-150.0, -10.0),
+    vec2f(-104.0, -2.0), vec2f(-50.0, -6.0), vec2f(10.0, -2.0), vec2f(62.0, -6.0), vec2f(100.0, -2.0),
+    vec2f(106.0 + wa * 0.4, -70.0), vec2f(104.0, -160.0), vec2f(100.0, -240.0), vec2f(84.0, -300.0), vec2f(60.0, -322.0),
+    vec2f(0.0, -332.0), vec2f(0.0), vec2f(0.0), vec2f(0.0), vec2f(0.0),
+    vec2f(0.0), vec2f(0.0), vec2f(0.0), vec2f(0.0), vec2f(0.0),
+    vec2f(0.0), vec2f(0.0)), 21);
+}
 
-// The bare lower face: below the mask's edge, which runs from under the nose back toward the jaw.
+fn armor(q: vec2f) -> f32 { return smin(torso(q), arms(q), 4.0); }
+fn walker(q: vec2f) -> f32 { return min(min(cape(q), armor(q)), smin(hood(q), torso(q), 4.0)); }
+
+// The bare lower face, below the mask's edge, which dips toward the cheeks.
 fn bareFace(q: vec2f) -> f32 {
-  let edge = (270.0 + (q.x - 104.0) * 0.42) - q.y;
-  let back = q.x - 206.0;
-  let under = q.y - 356.0;
-  return max(max(bust(q), edge), max(back, under));
+  let face = length((q - vec2f(0.0, -343.0)) / vec2f(1.0, 1.2)) - 19.5;
+  return max(face, (-354.0 + 0.009 * q.x * q.x) - q.y);
 }
 
-// The eye, the logo's lens in profile: a straight upper lid slanting down to the inner corner by the nose, a
-// shallow rounded lower lid; it blinks every few seconds.
-fn eyeLens(q: vec2f) -> f32 {
+// One of the logo's lens eyes (side -1 left, 1 right): a straight upper lid slanting down to the inner corner, a
+// rounded lower lid; both blink every few seconds.
+fn eyeLens(q: vec2f, side: f32) -> f32 {
   let open = 1.0 - step(0.965, fract(nsh.time / 5.3));
-  let a = vec2f(128.0, 238.0);
-  let b = vec2f(158.0, 224.0);
-  let dir = normalize(b - a);
-  let lid = dot(q - a, vec2f(dir.y, -dir.x));
-  let lower = length((q - vec2f(144.0, 226.0)) / vec2f(1.0, mix(0.08, 1.0, open))) - 15.0;
+  let e = vec2f((q.x - side * 9.8) * side, q.y + 363.0);
+  let lid = (-1.8 - 0.36 * e.x) - e.y;
+  let lower = length((e - vec2f(0.0, -1.5)) / vec2f(1.0, mix(0.08, 0.72, open))) - 7.2;
   return max(lid, lower);
 }
 
-// White ink strokes: the hood's front edge, its seam, the mask's edge across the cheek, the collar, and the cape's
-// folds over the shoulder. The distance to the nearest stroke.
-fn inkStrokes(q: vec2f) -> f32 {
-  var d = segment(q, vec2f(206.0, 98.0), vec2f(160.0, 156.0));
-  d = min(d, segment(q, vec2f(160.0, 156.0), vec2f(138.0, 206.0)));
-  d = min(d, segment(q, vec2f(236.0, 118.0), vec2f(256.0, 214.0)));
-  d = min(d, segment(q, vec2f(256.0, 214.0), vec2f(238.0, 318.0)));
-  d = min(d, segment(q, vec2f(118.0, 266.0), vec2f(206.0, 306.0)));
-  d = min(d, segment(q, vec2f(184.0, 402.0), vec2f(262.0, 364.0)));
-  d = min(d, segment(q, vec2f(262.0, 364.0), vec2f(336.0, 334.0)));
-  d = min(d, segment(q, vec2f(128.0, 456.0), vec2f(196.0, 476.0)));    // the chest's lower edge
-  d = min(d, segment(q, vec2f(144.0, 514.0), vec2f(188.0, 522.0)));    // a line across the waist
-  d = min(d, segment(q, vec2f(404.0, 318.0), vec2f(458.0, 352.0)));    // the deltoid's curve
-  d = min(d, segment(q, vec2f(458.0, 352.0), vec2f(474.0, 404.0)));
-  d = min(d, segment(q, vec2f(330.0, 366.0), vec2f(500.0, 474.0)));    // cape folds
-  d = min(d, segment(q, vec2f(300.0, 426.0), vec2f(510.0, 566.0)));
-  d = min(d, segment(q, vec2f(380.0, 560.0), vec2f(530.0, 990.0)));    // the cape's long fall
-  d = min(d, segment(q, vec2f(150.0, 598.0), vec2f(286.0, 610.0)));    // the belt
-  d = min(d, segment(q, vec2f(156.0, 836.0), vec2f(212.0, 820.0)));    // knees
-  d = min(d, segment(q, vec2f(258.0, 822.0), vec2f(310.0, 818.0)));
+// Armor seams and cape folds, drawn as faint lit lines: the plates of the chest, the abdomen's segments, the belt,
+// shoulder plates, gauntlets and knee guards, and the cape's long folds.
+fn seams(q: vec2f) -> f32 {
+  var d = segment(q, vec2f(0.0, -318.0), vec2f(0.0, -200.0));
+  d = min(d, segment(q, vec2f(4.0, -288.0), vec2f(44.0, -280.0)));
+  d = min(d, segment(q, vec2f(44.0, -280.0), vec2f(62.0, -300.0)));
+  d = min(d, segment(q, vec2f(-4.0, -288.0), vec2f(-44.0, -280.0)));
+  d = min(d, segment(q, vec2f(-44.0, -280.0), vec2f(-62.0, -300.0)));
+  for (var i = 0; i < 3; i = i + 1) {
+    let y = -262.0 + f32(i) * 19.0;
+    d = min(d, segment(q, vec2f(5.0, y), vec2f(30.0 - f32(i) * 3.0, y + 2.0)));
+    d = min(d, segment(q, vec2f(-5.0, y), vec2f(-30.0 + f32(i) * 3.0, y + 2.0)));
+  }
+  d = min(d, segment(q, vec2f(-44.0, -196.0), vec2f(44.0, -196.0)));
+  d = min(d, segment(q, vec2f(-44.0, -185.0), vec2f(44.0, -185.0)));
+  d = min(d, segment(q, vec2f(54.0, -318.0), vec2f(80.0, -292.0)));
+  d = min(d, segment(q, vec2f(-54.0, -318.0), vec2f(-80.0, -292.0)));
+  d = min(d, segment(q, vec2f(77.0, -206.0), vec2f(98.0, -202.0)));
+  d = min(d, segment(q, vec2f(-76.0, -208.0), vec2f(-96.0, -204.0)));
+  d = min(d, segment(q, vec2f(-6.0, -176.0), vec2f(-14.0, -6.0)));    // where the cape's two sides meet in front
+  d = min(d, segment(q, vec2f(40.0, -176.0), vec2f(54.0, -8.0)));
+  d = min(d, segment(q, vec2f(-50.0, -176.0), vec2f(-70.0, -8.0)));
+  d = min(d, segment(q, vec2f(-100.0, -262.0), vec2f(-176.0, -40.0)));
+  d = min(d, segment(q, vec2f(-90.0, -230.0), vec2f(-120.0, -20.0)));
+  d = min(d, segment(q, vec2f(100.0, -230.0), vec2f(104.0, -40.0)));
   return d;
 }
 
@@ -188,7 +205,7 @@ fn inkStrokes(q: vec2f) -> f32 {
 fn figure(p: vec2f) -> f32 {
   let roof = max(752.0 - p.x, 590.0 - p.y);
   let parapet = max(max(744.0 - p.x, p.x - 770.0), 578.0 - p.y);
-  return min(body(toWatcher(p)) * W_SCALE, min(roof, parapet));
+  return min(walker((p - FEET) / FIG_SCALE) * FIG_SCALE, min(roof, parapet));
 }
 
 // Slanted rain, falling from the upper right toward the lower left: three layers, far to near, each thinner, fainter
@@ -227,7 +244,7 @@ fn rain(p: vec2f, t: f32, k: f32, first: i32, last: i32) -> f32 {
 // skyline's roofs to the left. Traced down the column with the figure's distance field.
 fn surfaceAt(x: f32) -> f32 {
   if (x < 740.0) { return 650.0 - skyline(x + 80.0, 62.0, 9.0, 20.0, 90.0); }
-  var y = 230.0;
+  var y = 200.0;
   for (var i = 0; i < 64; i = i + 1) {
     let d = figure(vec2f(x, y));
     if (d < 0.35) { break; }
@@ -381,22 +398,26 @@ fn shade(uv: vec2f) -> vec4f {
   let inside = 1.0 - smoothstep(-0.8 / k, 0.8 / k, fd);
   col = mix(col, uniforms.base.rgb * 0.3, inside);
   col = col + uniforms.glow.rgb * exp(-abs(fd) / 2.2) * lit * 0.6 * step(fd, 4.0);
-  // The watcher in ink: the bare lower face pale with a mouth line, white strokes for the hood's edges, the mask's
-  // edge, the collar and the cape's folds, the gold raindrop clasp, and the glowing eye.
+  // The watcher: armor seams catching the light, the pale lower face with its mouth line, the gold raindrop clasp at
+  // the throat, the two glowing lens eyes; the legs fade into the rain's haze toward the roof.
   if (inside > 0.001) {
-    let q = toWatcher(fp);
-    let px = 1.0 / (k * W_SCALE);   // one window point in watcher units
-    let ink = mix(uniforms.glow.rgb, vec3f(1.0), 0.5);
+    let q = (fp - FEET) / FIG_SCALE;
+    let px = 1.0 / (k * FIG_SCALE);
+    let ink = mix(uniforms.glow.rgb, vec3f(1.0), 0.4);
+    let body = 1.0 - smoothstep(-px, px, armor(q));
+    col = mix(col, uniforms.base.rgb * 0.62 + uniforms.glow.rgb * 0.05, body * inside);
+    let seam = 1.0 - smoothstep(0.3 * px, 1.4 * px, seams(q));
+    col = col + ink * seam * mix(0.1, 0.2, body) * inside;
     let bare = (1.0 - smoothstep(-px, px, bareFace(q))) * inside;
-    let mouth = exp(-segment(q, vec2f(124.0, 318.0), vec2f(150.0, 322.0)) / (2.0 * px));
-    col = mix(col, ink * mix(0.34, 0.2, smoothstep(270.0, 356.0, q.y)) * (1.0 - mouth * 0.85), bare);
-    let stroke = 1.0 - smoothstep(0.6 * px, 2.2 * px, inkStrokes(q));
-    col = col + ink * stroke * 0.32 * inside;
-    let clasp = smin(length(q - vec2f(188.0, 424.0)) - 8.0, tri(q, vec2f(182.0, 420.0), vec2f(194.0, 420.0), vec2f(188.0, 402.0)), 2.0);
+    let mouth = exp(-segment(q, vec2f(-6.5, -333.0), vec2f(6.5, -333.0)) / (1.2 * px));
+    col = mix(col, ink * 0.3 * (1.0 - mouth * 0.85), bare);
+    let clasp = smin(length(q - vec2f(0.0, -322.0)) - 3.6, tri(q, vec2f(-2.6, -323.0), vec2f(2.6, -323.0), vec2f(0.0, -331.0)), 1.0);
     col = mix(col, uniforms.gold.rgb * 0.8, (1.0 - smoothstep(-px, px, clasp)) * inside);
-    let el = eyeLens(q);
+    let el = min(eyeLens(q, -1.0), eyeLens(q, 1.0));
     let eye = 1.0 - smoothstep(-px, px, el);
-    col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.1 + uniforms.gold.rgb * exp(-max(el, 0.0) * W_SCALE / 2.6) * 0.3 * inside;
+    col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.2 + uniforms.gold.rgb * exp(-max(el, 0.0) / 2.6) * 0.35 * inside;
+    let haze = smoothstep(-190.0, 0.0, q.y) * 0.35 * inside;
+    col = mix(col, uniforms.sky.rgb * 1.3 + uniforms.glow.rgb * 0.12, haze);
   }
 
   // The rain, in front of the city and the figure, catching the backlight more where it is brighter.
