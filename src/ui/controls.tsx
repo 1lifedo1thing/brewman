@@ -1,3 +1,4 @@
+import { titleBarControlHeight } from "./TitleBar";
 import { t } from "nsh/i18n";
 import { createMotion, effect, Image, reduceMotion, Text, token, View } from "nsh";
 import eyesGlyph from "./icons/eyes.svg";
@@ -44,9 +45,9 @@ export function NavItem(p: {label: string; icon: IconName; count: string; alert?
 
 /** The package search, with its ⌘F hint. */
 export function SearchField(p: {value: string; change: (s: string) => void; shortcut: string; inputRef?: (node: {focus(): void}) => void; class?: string}) {
-  return <View class={`h-7 justify-center ${p.class || ""}`}>
+  return <View style={{height: titleBarControlHeight}} class={`justify-center ${p.class || ""}`}>
     <Input ref={p.inputRef} testID="search" accessibilityLabel={t("toolbar.search")} placeholder={t("toolbar.search")} value={p.value} onChange={e => p.change(e.value)}
-      class={`${motionTokens.wash} h-7 rounded-(--radius) border border-foreground/10 bg-background/40 ps-7 pe-9 text-xs text-foreground placeholder:text-subtle focus:border-primary`}/>
+      class={`${motionTokens.wash} h-full rounded-(--radius) border border-foreground/10 bg-background/40 ps-7 pe-9 text-xs text-foreground placeholder:text-subtle focus:border-primary`}/>
     <View class="absolute start-2"><Icon name="search" size="sm"/></View>
     <View class="absolute end-1.5 rounded-(--radius-sm) border border-border-strong px-1"><Text class="font-mono text-xs text-subtle">{p.shortcut}</Text></View>
   </View>;

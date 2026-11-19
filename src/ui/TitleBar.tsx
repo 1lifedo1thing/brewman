@@ -2,6 +2,7 @@ import { View } from "nsh";
 import type { JSX } from "nsh/types";
 import { titleBar, windowState } from "nsh/desktop";
 
+export const titleBarControlHeight = 28;
 
 /**
  * The window's own title bar, drawn in place of the hidden system one: one dark strip across the whole window that
