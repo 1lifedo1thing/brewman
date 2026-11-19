@@ -1,7 +1,7 @@
 # Brewman
 
 A native macOS app for managing Homebrew packages, built with [NSH](https://nsh.dev). A dark “night watch” interface: a live
-shader night sky with bats behind translucent panels, sharp corners and a single gold accent.
+shader rainy night with bats behind translucent panels, sharp corners and a single gold accent.
 
 <img alt="Brewman listing installed Homebrew packages, with a package's details in the inspector" src="assets/screenshot.png" />
 
