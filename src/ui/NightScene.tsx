@@ -108,8 +108,9 @@ fn poly32(p: vec2f, pts: array<vec2f, 32>, n: i32) -> f32 {
 // The watcher, Brewman's own, drawn as an ink bust: seen in profile looking left, a hood swept back to a single
 // peak, the lower face bare below the mask, a high collar and a cape draped over the far shoulder. It is drawn in
 // its own units (a 520 × 600 box, y down), placed large behind the roof's lip.
-const W_SCALE: f32 = 0.56;
-fn toWatcher(p: vec2f) -> vec2f { return (p - vec2f(965.0, 614.0)) / W_SCALE + vec2f(300.0, 580.0); }
+const W_SCALE: f32 = 0.36;
+// The boots (y 1020 in watcher units) rest on the roof's top, behind its lip.
+fn toWatcher(p: vec2f) -> vec2f { return (p - vec2f(965.0, 598.0)) / W_SCALE + vec2f(300.0, 1020.0); }
 
 fn bust(q: vec2f) -> f32 {
   let w = sin(nsh.time * 0.8) * 4.0;   // the cape stirs
@@ -118,12 +119,27 @@ fn bust(q: vec2f) -> f32 {
   return poly32(q, array<vec2f, 32>(
     vec2f(318.0, 34.0), vec2f(352.0, 88.0), vec2f(372.0, 158.0), vec2f(384.0, 236.0), vec2f(394.0, 298.0),
     vec2f(432.0 + w * 0.2, 312.0), vec2f(474.0 + w * 0.3, 338.0), vec2f(500.0 + w * 0.5, 378.0),
-    vec2f(512.0 + w * 0.8, 452.0), vec2f(520.0 + w, 600.0), vec2f(156.0, 600.0), vec2f(146.0, 532.0),
+    vec2f(512.0 + w * 0.8, 452.0), vec2f(556.0 + w * 1.4, 1000.0), vec2f(520.0 + w, 1016.0), vec2f(338.0, 1004.0),
+    vec2f(170.0, 620.0), vec2f(146.0, 532.0),
     vec2f(130.0, 506.0), vec2f(114.0, 484.0), vec2f(118.0, 452.0), vec2f(140.0, 424.0), vec2f(176.0, 404.0),
     vec2f(204.0, 384.0), vec2f(196.0, 362.0), vec2f(154.0, 352.0), vec2f(134.0, 334.0), vec2f(127.0, 320.0),
     vec2f(121.0, 304.0), vec2f(108.0, 290.0), vec2f(95.0, 266.0), vec2f(118.0, 240.0), vec2f(125.0, 208.0),
-    vec2f(148.0, 152.0), vec2f(198.0, 88.0), vec2f(262.0, 50.0), vec2f(0.0), vec2f(0.0)), 30);
+    vec2f(148.0, 152.0), vec2f(198.0, 88.0), vec2f(262.0, 50.0)), 32);
 }
+
+// Standing: two legs planted apart under the narrow waist, thick thighs tapering to the boots, both feet toward
+// the city on the left.
+fn legs(q: vec2f) -> f32 {
+  let near = smin(segment(q, vec2f(196.0, 610.0), vec2f(184.0, 818.0)) - 40.0,
+                  segment(q, vec2f(184.0, 818.0), vec2f(198.0, 992.0)) - 28.0, 10.0);
+  let far = smin(segment(q, vec2f(270.0, 610.0), vec2f(284.0, 818.0)) - 38.0,
+                 segment(q, vec2f(284.0, 818.0), vec2f(298.0, 992.0)) - 27.0, 10.0);
+  let boots = min(segment(q, vec2f(156.0, 1006.0), vec2f(222.0, 1006.0)) - 14.0,
+                  segment(q, vec2f(252.0, 1006.0), vec2f(318.0, 1006.0)) - 14.0);
+  return min(min(near, far), boots);
+}
+
+fn body(q: vec2f) -> f32 { return smin(bust(q), legs(q), 6.0); }
 
 // The bare lower face: below the mask's edge, which runs from under the nose back toward the jaw.
 fn bareFace(q: vec2f) -> f32 {
@@ -161,6 +177,10 @@ fn inkStrokes(q: vec2f) -> f32 {
   d = min(d, segment(q, vec2f(458.0, 352.0), vec2f(474.0, 404.0)));
   d = min(d, segment(q, vec2f(330.0, 366.0), vec2f(500.0, 474.0)));    // cape folds
   d = min(d, segment(q, vec2f(300.0, 426.0), vec2f(510.0, 566.0)));
+  d = min(d, segment(q, vec2f(380.0, 560.0), vec2f(530.0, 990.0)));    // the cape's long fall
+  d = min(d, segment(q, vec2f(150.0, 598.0), vec2f(286.0, 610.0)));    // the belt
+  d = min(d, segment(q, vec2f(156.0, 836.0), vec2f(212.0, 820.0)));    // knees
+  d = min(d, segment(q, vec2f(258.0, 822.0), vec2f(310.0, 818.0)));
   return d;
 }
 
@@ -168,7 +188,7 @@ fn inkStrokes(q: vec2f) -> f32 {
 fn figure(p: vec2f) -> f32 {
   let roof = max(752.0 - p.x, 590.0 - p.y);
   let parapet = max(max(744.0 - p.x, p.x - 770.0), 578.0 - p.y);
-  return min(bust(toWatcher(p)) * W_SCALE, min(roof, parapet));
+  return min(body(toWatcher(p)) * W_SCALE, min(roof, parapet));
 }
 
 // Slanted rain, falling from the upper right toward the lower left: three layers, far to near, each thinner, fainter
@@ -207,8 +227,8 @@ fn rain(p: vec2f, t: f32, k: f32, first: i32, last: i32) -> f32 {
 // skyline's roofs to the left. Traced down the column with the figure's distance field.
 fn surfaceAt(x: f32) -> f32 {
   if (x < 740.0) { return 650.0 - skyline(x + 80.0, 62.0, 9.0, 20.0, 90.0); }
-  var y = 290.0;
-  for (var i = 0; i < 56; i = i + 1) {
+  var y = 230.0;
+  for (var i = 0; i < 64; i = i + 1) {
     let d = figure(vec2f(x, y));
     if (d < 0.35) { break; }
     y = y + max(d, 0.4);
