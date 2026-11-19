@@ -113,7 +113,16 @@ const FIG_SCALE: f32 = 0.8;   // drawn at 0.8 of its own units, feet fixed
 
 fn hood(q: vec2f) -> f32 {
   let head = length((q - vec2f(0.0, -356.0)) / vec2f(1.0, 1.2)) - 27.5;
-  return smin(head, tri(q, vec2f(-18.0, -372.0), vec2f(15.0, -376.0), vec2f(-2.0, -410.0)), 8.0);
+  // One tall, sharp peak, leaning slightly back.
+  return smin(head, tri(q, vec2f(-16.0, -374.0), vec2f(14.0, -378.0), vec2f(-6.0, -446.0)), 4.0);
+}
+
+// A high collar: a stiff panel rising from each shoulder beside the jaw to a point below the eyes, flaring out.
+fn collar(q: vec2f) -> f32 {
+  let x = abs(q.x);
+  let p = vec2f(x, q.y);
+  return min(tri(p, vec2f(18.0, -326.0), vec2f(58.0, -320.0), vec2f(44.0, -372.0)),
+             tri(p, vec2f(18.0, -326.0), vec2f(44.0, -372.0), vec2f(30.0, -360.0)));
 }
 
 // Neck, the trapezius sloping into armored shoulders, a deep chest over a narrow waist.
@@ -155,7 +164,7 @@ fn cape(q: vec2f) -> f32 {
 }
 
 fn armor(q: vec2f) -> f32 { return smin(torso(q), arms(q), 4.0); }
-fn walker(q: vec2f) -> f32 { return min(min(cape(q), armor(q)), smin(hood(q), torso(q), 4.0)); }
+fn walker(q: vec2f) -> f32 { return min(min(min(cape(q), armor(q)), smin(hood(q), torso(q), 4.0)), collar(q)); }
 
 // The bare lower face, below the mask's edge, which dips toward the cheeks.
 fn bareFace(q: vec2f) -> f32 {
@@ -177,6 +186,7 @@ fn eyeLens(q: vec2f, side: f32) -> f32 {
 // shoulder plates, gauntlets and knee guards, and the cape's long folds.
 fn seams(q: vec2f) -> f32 {
   var d = segment(q, vec2f(0.0, -318.0), vec2f(0.0, -200.0));
+  d = min(d, segment(vec2f(abs(q.x), q.y), vec2f(28.0, -330.0), vec2f(42.0, -366.0)));   // the collar's fold
   d = min(d, segment(q, vec2f(4.0, -288.0), vec2f(44.0, -280.0)));
   d = min(d, segment(q, vec2f(44.0, -280.0), vec2f(62.0, -300.0)));
   d = min(d, segment(q, vec2f(-4.0, -288.0), vec2f(-44.0, -280.0)));
