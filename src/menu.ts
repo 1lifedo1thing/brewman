@@ -13,6 +13,23 @@ export interface MenuActions {
   busy(): boolean;
 }
 
+/** The title bar's Menu button: what the app does, about it, and quitting, at hand without the menu bar. */
+export function openToolbarMenu(a: MenuActions): void {
+  void Menu.popup([
+    {label: t("toolbar.update_homebrew"), shortcut: "mod+r", disabled: a.busy(), onSelect: a.updateHomebrew},
+    {label: t("app_menu.find"), shortcut: "mod+f", onSelect: a.find},
+    {type: "separator"},
+    {label: t("app_menu.about"), onSelect: a.about},
+    {label: t("app_menu.website"), onSelect: () => openExternal(links.website)},
+    {label: t("app_menu.github"), onSelect: () => openExternal(links.repo)},
+    {label: t("app_menu.issue"), onSelect: () => openExternal(links.issues)},
+    {type: "separator"},
+    {label: t("app_menu.sponsor"), onSelect: () => openExternal(links.sponsor)},
+    {type: "separator"},
+    {role: "quit"},
+  ]);
+}
+
 export function installAppMenu(a: MenuActions): void {
   effect(() => Menu.setApplicationMenu([
     {label: "Brewman", submenu: [

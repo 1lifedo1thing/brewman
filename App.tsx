@@ -7,7 +7,7 @@ import { Dialog } from "nsh/base";
 import { brew, inventory, modify, type Package } from "./src/brew";
 import { Button, Chip, Field, KindTile, LetterIndex, NavItem, PackageRow, SearchField, Spinner, display, letterOf } from "./src/ui/controls";
 import { appInfo, type ListRef } from "nsh";
-import { installAppMenu } from "./src/menu";
+import { installAppMenu, openToolbarMenu } from "./src/menu";
 import { links, openExternal } from "./src/links";
 import { Icon, type IconName } from "./src/ui/Icon";
 import { motionTokens, revealOn } from "./src/ui/motion";
@@ -110,13 +110,14 @@ function App() {
     });
   }
 
-  installAppMenu({
+  const menuActions = {
     about: () => aboutOpen.set(true),
     updateHomebrew,
     find: () => searchInput?.focus(),
     busy: () => !!busy(),
     sections: () => sections.map(s => ({label: t(s.label), selected: section() === s, select: () => section.set(s)})),
-  });
+  };
+  installAppMenu(menuActions);
 
   void refresh(t("status.loading"));
 
@@ -131,13 +132,13 @@ function App() {
         <Text style={{...display, fontSize: 14, letterSpacing: 3.2}} class="text-foreground">Brewman</Text>
       </>}
       title={<>
-        <Text style={{...display, fontSize: 15, letterSpacing: 2}} class="text-foreground">{t(section().label)}</Text>
+        <Text class="text-sm font-medium text-foreground">{t(section().label)}</Text>
         <Text class="font-mono text-xs text-subtle">{loaded() ? visible().length : ""}</Text>
       </>}
       actions={<View class="flex-row items-center gap-2.5">
         <SearchField class={compact() ? "w-44" : "w-56"} value={query()} change={q => query.set(q)}
           shortcut={keymap.label("mod+f")} inputRef={node => { searchInput = node; }}/>
-        <Button label={t("toolbar.update_homebrew")} icon="refresh" disabled={!!busy()} press={updateHomebrew}/>
+        <Button label={t("toolbar.menu")} icon="menu" press={() => openToolbarMenu(menuActions)}/>
       </View>}/>
 
     <View class="flex-1 flex-row">

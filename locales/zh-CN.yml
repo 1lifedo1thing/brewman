@@ -7,6 +7,7 @@ nav:
   homebrew: "本机 Homebrew"
 toolbar:
   update_homebrew: "更新 Homebrew"
+  menu: "菜单"
   search: "搜索软件包"
 table:
   package: "软件包"

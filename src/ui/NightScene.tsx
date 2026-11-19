@@ -80,17 +80,21 @@ fn tri(p: vec2f, a: vec2f, b: vec2f, c: vec2f) -> f32 {
                   vec2f(dot(pq2, pq2), sg * (v2.x * e2.y - v2.y * e2.x)));
   return -sqrt(d.x) * sign(d.y);
 }
-// Signed distance to the face in profile, looking left: brow, nose, lips and chin, back to the jaw.
-fn face(p: vec2f) -> f32 {
-  var v = array<vec2f, 9>(vec2f(874.0, 349.0), vec2f(866.0, 361.0), vec2f(861.5, 370.0), vec2f(858.0, 377.0),
-    vec2f(863.0, 381.0), vec2f(862.5, 386.0), vec2f(867.0, 393.0), vec2f(883.0, 395.0), vec2f(889.0, 368.0));
+fn box(p: vec2f, c: vec2f, half: vec2f) -> f32 {
+  let d = abs(p - c) - half;
+  return length(max(d, vec2f(0.0))) + min(max(d.x, d.y), 0.0);
+}
+
+// Signed distance to a polygon of up to 32 points (n of them, in order).
+fn poly32(p: vec2f, pts: array<vec2f, 32>, n: i32) -> f32 {
+  var v = pts;
   var d = dot(p - v[0], p - v[0]);
   var s = 1.0;
-  var j = 8;
-  for (var i = 0; i < 9; i = i + 1) {
+  var j = n - 1;
+  for (var i = 0; i < n; i = i + 1) {
     let e = v[j] - v[i];
     let w = p - v[i];
-    let b = w - e * clamp(dot(w, e) / dot(e, e), 0.0, 1.0);
+    let b = w - e * clamp(dot(w, e) / max(dot(e, e), 1e-6), 0.0, 1.0);
     d = min(d, dot(b, b));
     let c0 = p.y >= v[i].y;
     let c1 = v[j].y > p.y;
@@ -100,61 +104,49 @@ fn face(p: vec2f) -> f32 {
   }
   return s * sqrt(d);
 }
-fn box(p: vec2f, c: vec2f, half: vec2f) -> f32 {
-  let d = abs(p - c) - half;
-  return length(max(d, vec2f(0.0))) + min(max(d.x, d.y), 0.0);
+
+// The watcher, Brewman's own: a tall hood rising to one soft peak, broad shoulders, and a cape that falls straight
+// and ends in a row of raindrop points that sway in the wind. Seen from the front, standing behind the roof's lip.
+const CX: f32 = 965.0;
+fn watcher(p: vec2f) -> f32 {
+  let w = sin(nsh.time * 0.9) * 3.0;
+  let v = sin(nsh.time * 0.9 + 1.4) * 3.0;
+  return poly32(p, array<vec2f, 32>(
+    vec2f(965.0, 300.0), vec2f(984.0, 311.0), vec2f(997.0, 329.0), vec2f(1004.0, 356.0), vec2f(1006.0, 390.0),
+    vec2f(1008.0, 428.0), vec2f(1060.0, 452.0), vec2f(1092.0, 476.0), vec2f(1100.0, 500.0), vec2f(1098.0, 560.0),
+    vec2f(1094.0 + w, 620.0), vec2f(1072.0 + w, 650.0), vec2f(1050.0 + w, 624.0), vec2f(1018.0 + v, 662.0),
+    vec2f(990.0 + v, 628.0), vec2f(965.0 + w, 674.0), vec2f(940.0 + v, 628.0), vec2f(912.0 + v, 662.0),
+    vec2f(880.0 + w, 624.0), vec2f(858.0 + w, 650.0), vec2f(836.0 + w, 620.0), vec2f(832.0, 560.0),
+    vec2f(830.0, 500.0), vec2f(838.0, 476.0), vec2f(870.0, 452.0), vec2f(922.0, 428.0), vec2f(924.0, 390.0),
+    vec2f(926.0, 356.0), vec2f(933.0, 329.0), vec2f(946.0, 311.0), vec2f(0.0), vec2f(0.0)), 30);
 }
-// The cape's half-widths at height y: narrow at the shoulders, wide and wind-blown below, its hem cut in scallops.
-fn cape(p: vec2f) -> f32 {
-  let y = p.y;
-  let fall = pow(clamp((y - 440.0) / 150.0, 0.0, 1.0), 1.1);
-  let gust = sin(nsh.time * 0.9 + y * 0.03) * smoothstep(430.0, 590.0, y);
-  let left = 58.0 + 48.0 * fall + 6.0 * gust;
-  let right = 58.0 + 92.0 * fall + 16.0 * gust;
-  let side = max((880.0 - left) - p.x, p.x - (880.0 + right));
-  let u = (p.x - (880.0 - left)) / (left + right);
-  let hem = 588.0 - 14.0 * abs(sin(u * 3.14159 * 5.0)) - 10.0 * u;   // five scallops, lifting to the windward side
-  return max(side, max(440.0 - y, y - hem));
+
+// The lower face, open below the mask: a rounded shield whose top, the mask's edge, curves down toward the cheeks.
+fn openFace(p: vec2f) -> f32 {
+  let oval = length((p - vec2f(CX, 386.0)) / vec2f(25.0, 32.0)) * 25.0 - 25.0;
+  let edge = (381.0 + 0.012 * (p.x - CX) * (p.x - CX)) - p.y;
+  return max(oval, edge);
 }
-// Signed distance (frame units) to the figure: an angular hood with a brow, armored shoulders, a tapering torso
-// and a scalloped cape, standing on a rooftop with a parapet.
+
+// One of the logo's lens eyes (side -1 left, 1 right): a straight upper lid slanting down to the inner corner and a
+// shallow rounded lower lid. Signed distance in frame units.
+fn lens(p: vec2f, side: f32) -> f32 {
+  let open = 1.0 - step(0.965, fract(nsh.time / 5.3));
+  let w = 15.0;
+  let gap = 3.3;
+  let q = vec2f(1.0 - (side * (p.x - CX) - gap * 0.5) / w, (p.y - 356.0) / w);
+  let c = vec2f(q.x, 0.33 + (q.y - 0.33) / max(open, 0.08));
+  let s = 0.441;
+  let lid = (s * c.x - c.y) / sqrt(1.0 + s * s);
+  let lower = (length((c - vec2f(0.5, 0.22)) / vec2f(0.56, 0.45)) - 1.0) * 0.45;
+  return max(lid, lower) * w;
+}
+
+// Signed distance (frame units) to the watcher, the roof and its parapet.
 fn figure(p: vec2f) -> f32 {
-  // The head in profile, turned to the left to look out past the roof's edge, a little bowed, under a close
-  // hood that peaks at the back of the skull.
-  let skull = length((p - vec2f(882.0, 365.0)) / vec2f(1.0, 1.15)) - 15.0;
-  let peak = tri(p, vec2f(874.0, 352.0), vec2f(896.0, 356.0), vec2f(893.0, 341.0));
-  let head = smin(smin(skull, face(p), 4.0), peak, 4.0);
-  // Broad shoulders under the cape: the trapezius sloping from the neck into a wide, rounded mass.
-  let neck = max(abs(p.x - 881.0) - mix(11.0, 30.0, clamp((p.y - 386.0) / 20.0, 0.0, 1.0)), max(384.0 - p.y, p.y - 412.0));
-  let shoulders = length((p - vec2f(880.0, 432.0)) / vec2f(60.0, 28.0)) * 28.0 - 28.0;
-  let pauldrons = shoulders;
-  let taper = mix(50.0, 26.0, clamp((p.y - 430.0) / 74.0, 0.0, 1.0));
-  let torso = max(abs(p.x - 880.0) - taper, max(436.0 - p.y, p.y - 504.0));
-  let legs = min(box(p, vec2f(870.0, 548.0), vec2f(8.0, 44.0)), box(p, vec2f(892.0, 548.0), vec2f(8.0, 44.0)));
-  var body = smin(head, neck, 5.0);
-  body = smin(body, shoulders, 9.0);
-  body = min(body, min(torso, legs));
-  body = min(body, cape(p));
   let roof = max(752.0 - p.x, 590.0 - p.y);
   let parapet = max(max(744.0 - p.x, p.x - 770.0), 578.0 - p.y);
-  return min(body, min(roof, parapet));
-}
-// The eyes: two narrow slanted slits in the hood, lit from within; they blink every few seconds.
-// The eye in profile, the logo's lens: a straight upper lid slanting down to the inner corner, a shallow rounded
-// lower lid. Lit from within; it blinks every few seconds. Returns the lens's signed distance.
-fn eyeLens(p: vec2f) -> f32 {
-  let open = 1.0 - step(0.965, fract(nsh.time / 5.3));
-  let a = vec2f(865.0, 369.6);
-  let b = vec2f(872.8, 365.2);
-  let dir = normalize(b - a);
-  let lid = dot(p - a, vec2f(dir.y, -dir.x));
-  let lower = length((p - vec2f(869.4, 363.6)) / vec2f(1.0, mix(0.08, 1.0, open))) - 6.2;
-  return max(lid, lower);
-}
-// The clothing is kept plain: only a faint glint along the belt.
-fn armor(p: vec2f) -> vec2f {
-  let belt = exp(-abs(p.y - 499.0) / 1.2) * step(abs(p.x - 880.0), 23.0);
-  return vec2f(0.0, belt * 0.6);
+  return min(watcher(p), min(roof, parapet));
 }
 
 // Slanted rain, falling from the upper right toward the lower left: three layers, far to near, each thinner, fainter
@@ -193,8 +185,8 @@ fn rain(p: vec2f, t: f32, k: f32, first: i32, last: i32) -> f32 {
 // skyline's roofs to the left. Traced down the column with the figure's distance field.
 fn surfaceAt(x: f32) -> f32 {
   if (x < 740.0) { return 650.0 - skyline(x + 80.0, 62.0, 9.0, 20.0, 90.0); }
-  var y = 320.0;
-  for (var i = 0; i < 40; i = i + 1) {
+  var y = 290.0;
+  for (var i = 0; i < 56; i = i + 1) {
     let d = figure(vec2f(x, y));
     if (d < 0.35) { break; }
     y = y + max(d, 0.4);
@@ -231,10 +223,17 @@ fn splashes(p: vec2f, t: f32) -> f32 {
   return glow;
 }
 
-// Puddle ripples on the near roof: rings that spread and fade, flattened by the roof's slant.
+// The near roof is seen at a low angle: its flat top is the thin band from the parapet line (590) to its front lip
+// (606); below the lip is the building's wall.
+const ROOF_TOP: f32 = 590.0;
+const ROOF_LIP: f32 = 606.0;
+
+// Puddle ripples, only on the roof's flat top: rings spreading and fading, squashed flat by the low view, smaller
+// toward the back edge.
 fn ripples(p: vec2f, t: f32) -> f32 {
-  if (p.x < 752.0 || p.y < 592.0) { return 0.0; }
-  let g = vec2f(14.0, 8.0);
+  if (p.x < 752.0 || p.y < ROOF_TOP + 0.5 || p.y > ROOF_LIP - 0.5) { return 0.0; }
+  let depth = (p.y - ROOF_TOP) / (ROOF_LIP - ROOF_TOP);   // 0 at the back edge, 1 at the lip
+  let g = vec2f(13.0, 4.0);
   let cell = floor(p / g);
   var total = 0.0;
   for (var j = -1.0; j <= 1.0; j = j + 1.0) {
@@ -242,13 +241,27 @@ fn ripples(p: vec2f, t: f32) -> f32 {
       let c = cell + vec2f(i, j);
       let h = hash(c.x * 7.1 + c.y * 31.7);
       let phase = fract(t * mix(0.5, 1.1, h) + hash(c.x * 2.9 + c.y * 5.3));
-      let centre = (c + vec2f(0.5) + (vec2f(hash(c.x + c.y * 3.0), hash(c.y + c.x * 5.0)) - 0.5) * 0.7) * g;
-      let r = phase * 9.0;
-      let d = abs(length((p - centre) / vec2f(1.0, 0.32)) - r);
-      total = total + exp(-d / 0.4) * (1.0 - phase) * step(r, 9.0);
+      let centre = (c + vec2f(0.5) + (vec2f(hash(c.x + c.y * 3.0), hash(c.y + c.x * 5.0)) - 0.5) * 0.6) * g;
+      let r = phase * mix(4.0, 7.0, depth);
+      let d = abs(length((p - centre) / vec2f(1.0, mix(0.14, 0.24, depth))) - r);
+      total = total + exp(-d / 0.4) * (1.0 - phase);
     }
   }
   return total;
+}
+
+// Rain running down the wall below the roof's lip: thin wet streaks sliding down, fading as they go.
+fn runoff(p: vec2f, t: f32) -> f32 {
+  if (p.x < 752.0 || p.y < ROOF_LIP + 1.0) { return 0.0; }
+  let w = 9.0;
+  let col = floor(p.x / w);
+  let x = (col + 0.5 + (hash(col * 4.3) - 0.5) * 0.5) * w;
+  let speed = mix(18.0, 40.0, hash(col * 1.7));
+  let len = mix(10.0, 26.0, hash(col * 2.9));
+  let y = p.y - ROOF_LIP - fract(t * speed / 120.0 + hash(col * 8.1)) * 120.0;
+  let streak = smoothstep(-len, 0.0, y) * (1.0 - smoothstep(0.0, 1.5, y));
+  let fade = 1.0 - smoothstep(0.0, 110.0, p.y - ROOF_LIP);
+  return streak * fade * exp(-abs(p.x - x) / 0.35) * step(0.4, hash(col * 6.7));
 }
 
 fn shade(uv: vec2f) -> vec4f {
@@ -326,16 +339,23 @@ fn shade(uv: vec2f) -> vec4f {
   let inside = 1.0 - smoothstep(-0.8 / k, 0.8 / k, fd);
   col = mix(col, uniforms.base.rgb * 0.3, inside);
   col = col + uniforms.glow.rgb * exp(-abs(fd) / 2.2) * lit * 0.6 * step(fd, 4.0);
-  let shine = armor(fp);
-  col = col + uniforms.glow.rgb * shine.x * 0.12 * inside + uniforms.gold.rgb * shine.y * 0.45 * inside;
-  let el = eyeLens(fp);
-  let eye = 1.0 - smoothstep(-0.35 / k, 0.35 / k, el);
-  col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.1 + uniforms.gold.rgb * exp(-max(el, 0.0) / 2.4) * 0.35 * inside;
-  // Below the mask's edge (from under the nose back to the jaw) the lower face is bare: a shade warmer than the
-  // cowl, its outline catching a little of the light.
-  let bare = inside * step(fp.x, 881.0) * step(377.0 + (fp.x - 859.0) * 0.6, fp.y) * step(fp.y, 393.0 - (fp.x - 866.0) * 0.45) * step(face(fp), 0.5);
-  col = mix(col, uniforms.base.rgb * 0.34 + uniforms.gold.rgb * 0.025, bare);
-  col = col + uniforms.glow.rgb * exp(-abs(face(fp)) / 0.8) * bare * 0.25;
+  // The watcher's lower face shows below the mask, with a mouth line; the eyes glow; the high collar's edges and the
+  // gold raindrop clasp at its throat catch the light.
+  if (inside > 0.001) {
+    let fo = openFace(fp);
+    let skin = (1.0 - smoothstep(-0.5 / k, 0.5 / k, fo)) * inside;
+    let mouth = exp(-segment(fp, vec2f(958.0, 404.0), vec2f(972.0, 404.0)) / 0.45);
+    let pale = mix(uniforms.gold.rgb, vec3f(0.85, 0.82, 0.8), 0.7);
+    col = mix(col, pale * mix(0.3, 0.17, smoothstep(381.0, 418.0, fp.y)) * (1.0 - mouth * 0.8), skin);
+    let collar = min(min(segment(fp, vec2f(922.0, 428.0), vec2f(938.0, 400.0)), segment(fp, vec2f(938.0, 400.0), vec2f(952.0, 428.0))),
+                     min(segment(fp, vec2f(1008.0, 428.0), vec2f(992.0, 400.0)), segment(fp, vec2f(992.0, 400.0), vec2f(978.0, 428.0))));
+    col = col + uniforms.glow.rgb * exp(-collar / 0.6) * 0.18 * inside;
+    let clasp = smin(length(fp - vec2f(CX, 442.0)) - 4.0, tri(fp, vec2f(CX - 3.0, 440.0), vec2f(CX + 3.0, 440.0), vec2f(CX, 431.0)), 1.0);
+    col = mix(col, uniforms.gold.rgb * 0.8, (1.0 - smoothstep(-0.5 / k, 0.5 / k, clasp)) * inside);
+    let el = min(lens(fp, -1.0), lens(fp, 1.0));
+    let eye = 1.0 - smoothstep(-0.35 / k, 0.35 / k, el);
+    col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.1 + uniforms.gold.rgb * exp(-max(el, 0.0) / 2.6) * 0.3 * inside;
+  }
 
   // The rain, in front of the city and the figure, catching the backlight more where it is brighter.
   // The near rain stops where it meets the figure and the roof; where it lands it splashes, and the roof's puddles
@@ -346,9 +366,14 @@ fn shade(uv: vec2f) -> vec4f {
   if (fd > -2.0 && fd < 16.0 || fp.y > 560.0) {
     col = col + rainLight * splashes(fp, t) * (0.35 + 1.2 * lit) * 0.55;
   }
-  let roof = step(752.0, fp.x) * step(592.0, fp.y);
-  let sheen = roof * exp(-abs(fp.x - 905.0) / 70.0) * exp(-(fp.y - 592.0) / 40.0);
-  col = col + uniforms.glow.rgb * (sheen * 0.12 + ripples(fp, t) * 0.18 * (0.3 + sheen * 3.0));
+  // The wet roof top reflects the backlight; its front lip catches a thin line of light; the wall below is darker
+  // and streaked with run-off.
+  let top = step(752.0, fp.x) * step(ROOF_TOP, fp.y) * step(fp.y, ROOF_LIP);
+  let sheen = top * exp(-abs(fp.x - 905.0) / 90.0);
+  col = col + uniforms.glow.rgb * (sheen * 0.14 + ripples(fp, t) * 0.22 * (0.35 + sheen * 3.0));
+  col = col + uniforms.glow.rgb * exp(-abs(fp.y - ROOF_LIP) / 0.6) * step(752.0, fp.x) * (0.08 + 0.25 * exp(-abs(fp.x - 905.0) / 120.0));
+  let wall = step(752.0, fp.x) * step(ROOF_LIP, fp.y);
+  col = col * (1.0 - wall * 0.25) + uniforms.glow.rgb * runoff(fp, t) * 0.12;
   col = mix(col, uniforms.sky.rgb * 1.6, 0.06);                   // the haze rain leaves in the air
 
   // Readability: darken the left where the sidebar and table sit, and the edges.

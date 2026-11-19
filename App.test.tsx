@@ -5,7 +5,8 @@ test("opens the package library in English and switches categories", async () =>
   expect(app.texts()).toContain("LIBRARY");
   expect(app.texts()).toContain("All Packages");
   await app.press("Cask");
-  expect(app.texts()).toContain("CASK");
+  // The title bar now names the section too: "Cask" in the sidebar and in the title.
+  expect(app.texts().filter(t => t === "Cask").length).toBe(2);
 });
 
 test("shows Simplified Chinese for a Chinese locale", async () => {
@@ -23,7 +24,7 @@ test("falls back to English for other locales", async () => {
 test("category selection works with reduced motion", async () => {
   const app = await open("./App.tsx", {locale: "en-US", reducedMotion: true});
   await app.press("Cask >> nth=0");
-  expect(app.texts()).toContain("CASK");
+  expect(app.texts().filter(t => t === "Cask").length).toBe(2);
 });
 
 test("reports a missing Homebrew in the status bar without an error prefix", async () => {
