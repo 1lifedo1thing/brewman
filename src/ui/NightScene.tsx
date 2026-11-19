@@ -119,12 +119,11 @@ fn cape(p: vec2f) -> f32 {
 // Signed distance (frame units) to the figure: an angular hood with a brow, armored shoulders, a tapering torso
 // and a scalloped cape, standing on a rooftop with a parapet.
 fn figure(p: vec2f) -> f32 {
-  // The head in profile, turned to the left to look out past the roof's edge, a little bowed; the hood's two
-  // pointed ears rise from the back of the skull, the far one shorter.
+  // The head in profile, turned to the left to look out past the roof's edge, a little bowed, under a close
+  // hood that peaks at the back of the skull.
   let skull = length((p - vec2f(882.0, 365.0)) / vec2f(1.0, 1.15)) - 15.0;
-  let ears = min(tri(p, vec2f(876.0, 352.0), vec2f(886.0, 350.0), vec2f(881.0, 326.0)),
-                 tri(p, vec2f(886.0, 352.0), vec2f(894.0, 356.0), vec2f(892.5, 333.0)));
-  let head = smin(smin(skull, face(p), 4.0), ears, 2.5);
+  let peak = tri(p, vec2f(874.0, 352.0), vec2f(896.0, 356.0), vec2f(893.0, 341.0));
+  let head = smin(smin(skull, face(p), 4.0), peak, 4.0);
   // Broad shoulders under the cape: the trapezius sloping from the neck into a wide, rounded mass.
   let neck = max(abs(p.x - 881.0) - mix(11.0, 30.0, clamp((p.y - 386.0) / 20.0, 0.0, 1.0)), max(384.0 - p.y, p.y - 412.0));
   let shoulders = length((p - vec2f(880.0, 432.0)) / vec2f(60.0, 28.0)) * 28.0 - 28.0;

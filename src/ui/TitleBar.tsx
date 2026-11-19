@@ -14,7 +14,7 @@ export function TitleBar(p: {brand?: JSX.Element; brandWidth: number; title?: JS
   const active = () => windowState()?.focused ?? true;
   return <View desktop={{windowDrag: true}} role="toolbar"
     class="flex-row items-center border-b border-foreground/10 bg-background/55"
-    style={{height: area().height || 42, flexShrink: 0, paddingRight: area().right + 14}}>
+    style={{height: area().height || 42, flexShrink: 0, paddingRight: area().right + 14, paddingTop: 2.5}}>
     <View desktop={{windowDrag: true}} class="h-full flex-row items-center gap-2.5 border-r border-foreground/10"
       style={{width: p.brandWidth, paddingLeft: area().left + 6}}>
       <View class={`flex-row items-center gap-2.5 transition-opacity duration-150 ease-out motion-reduce:transition-none`} style={{opacity: active() ? 1 : 0.5}}>{p.brand}</View>
