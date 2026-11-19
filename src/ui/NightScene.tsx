@@ -140,19 +140,21 @@ fn figure(p: vec2f) -> f32 {
   return min(body, min(roof, parapet));
 }
 // The eyes: two narrow slanted slits in the hood, lit from within; they blink every few seconds.
-fn eyes(p: vec2f) -> f32 {
-  let q = p - vec2f(866.5, 369.5);
-  let r = vec2f(q.x, q.y - q.x * 0.25);
-  let d = box(r, vec2f(0.0), vec2f(2.6, 0.55));
-  return 1.0 - smoothstep(-0.3, 0.5, d);
+// The eye in profile, the logo's lens: a straight upper lid slanting down to the inner corner, a shallow rounded
+// lower lid. Lit from within; it blinks every few seconds. Returns the lens's signed distance.
+fn eyeLens(p: vec2f) -> f32 {
+  let open = 1.0 - step(0.965, fract(nsh.time / 5.3));
+  let a = vec2f(865.0, 369.6);
+  let b = vec2f(872.8, 365.2);
+  let dir = normalize(b - a);
+  let lid = dot(p - a, vec2f(dir.y, -dir.x));
+  let lower = length((p - vec2f(869.4, 363.6)) / vec2f(1.0, mix(0.08, 1.0, open))) - 6.2;
+  return max(lid, lower);
 }
-// Light caught on the armor: the pauldrons' rims, the chest plate's edge and a glint on the belt.
+// The clothing is kept plain: only a faint glint along the belt.
 fn armor(p: vec2f) -> vec2f {
-  let rims = 0.0;
-  let v = min(segment(p, vec2f(852.0, 432.0), vec2f(880.0, 468.0)), segment(p, vec2f(908.0, 432.0), vec2f(880.0, 468.0)));
-  let chest = exp(-v / 0.8);
   let belt = exp(-abs(p.y - 499.0) / 1.2) * step(abs(p.x - 880.0), 23.0);
-  return vec2f((rims + chest * 0.6) * step(p.x, 930.0), belt);
+  return vec2f(0.0, belt * 0.6);
 }
 
 // Slanted rain, falling from the upper right toward the lower left: three layers, far to near, each thinner, fainter
@@ -326,8 +328,9 @@ fn shade(uv: vec2f) -> vec4f {
   col = col + uniforms.glow.rgb * exp(-abs(fd) / 2.2) * lit * 0.6 * step(fd, 4.0);
   let shine = armor(fp);
   col = col + uniforms.glow.rgb * shine.x * 0.12 * inside + uniforms.gold.rgb * shine.y * 0.45 * inside;
-  let e = eyes(fp);
-  col = col + vec3f(0.55, 0.55, 0.6) * e * inside * 0.22;
+  let el = eyeLens(fp);
+  let eye = 1.0 - smoothstep(-0.35 / k, 0.35 / k, el);
+  col = col + mix(uniforms.gold.rgb, vec3f(1.0), 0.6) * eye * 1.1 + uniforms.gold.rgb * exp(-max(el, 0.0) / 2.4) * 0.35 * inside;
   // Below the mask's edge (from under the nose back to the jaw) the lower face is bare: a shade warmer than the
   // cowl, its outline catching a little of the light.
   let bare = inside * step(fp.x, 881.0) * step(377.0 + (fp.x - 859.0) * 0.6, fp.y) * step(fp.y, 393.0 - (fp.x - 866.0) * 0.45) * step(face(fp), 0.5);
