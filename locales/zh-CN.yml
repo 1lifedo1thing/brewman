@@ -51,6 +51,7 @@ errors:
   no_brew: "未找到 Homebrew，请检查 brew 安装路径。"
   brew_failed: "Homebrew 命令失败"
 app_menu:
+  quit: "退出 Brewman"
   about: "关于 Brewman"
   sponsor: "赞助 Brewman…"
   file: "文件"

@@ -7,7 +7,8 @@ import { Dialog } from "nsh/base";
 import { brew, inventory, modify, type Package } from "./src/brew";
 import { Button, Chip, Field, KindTile, LetterIndex, NavItem, PackageRow, SearchField, Spinner, display, letterOf } from "./src/ui/controls";
 import { appInfo, type ListRef } from "nsh";
-import { installAppMenu, openToolbarMenu } from "./src/menu";
+import { installAppMenu, toolbarMenuItems } from "./src/menu";
+import { DropdownMenu } from "./src/ui/menu";
 import { links, openExternal } from "./src/links";
 import { Icon, type IconName } from "./src/ui/Icon";
 import { motionTokens, revealOn } from "./src/ui/motion";
@@ -138,7 +139,7 @@ function App() {
       actions={<View class="flex-row items-center gap-2.5">
         <SearchField class={compact() ? "w-44" : "w-56"} value={query()} change={q => query.set(q)}
           shortcut={keymap.label("mod+f")} inputRef={node => { searchInput = node; }}/>
-        <Button label={t("toolbar.menu")} icon="menu" press={() => openToolbarMenu(menuActions)}/>
+        <DropdownMenu label={t("toolbar.menu")} icon="menu" items={() => toolbarMenuItems(menuActions)}/>
       </View>}/>
 
     <View class="flex-1 flex-row">

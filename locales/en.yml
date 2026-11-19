@@ -51,6 +51,7 @@ errors:
   no_brew: "Homebrew was not found. Check where brew is installed."
   brew_failed: "The Homebrew command failed"
 app_menu:
+  quit: "Quit Brewman"
   about: "About Brewman"
   sponsor: "Sponsor Brewman…"
   file: "File"
